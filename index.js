@@ -1,3 +1,1 @@
-import {CompareEngine} from "./compare-engine";
-
-export {CompareEngine};
+export {CompareEngine} from "./src/compare-engine";

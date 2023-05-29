@@ -4,7 +4,8 @@
   "description": "Json comparison engine",
   "main": "index.js",
   "scripts": {
-    "test": "jest compare-engine.spec.ts"
+    "build": "rm -rf ./dist && tsc",
+    "test": "jest src/compare-engine.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "jest": "^29.5.0",
     "jest-cli": "^29.5.0",
+    "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
   }
 }

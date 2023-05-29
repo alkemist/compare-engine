@@ -1,7 +1,7 @@
 import {JsonObject, JsonValue} from "./json-value.interface";
 
 export abstract class Utils {
-    static isNumber(num: unknown): num is number {
+    static isNumber(num: string | number): num is number {
         return !isNaN(+num);
     }
 

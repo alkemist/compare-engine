@@ -5,7 +5,7 @@ import {JsonValue} from "./json-value.interface";
 
 describe("CompareEngine", () => {
     describe("Readme example", () => {
-        const jsonLeft = {
+        const jsonLeft: JsonValue = {
             objectArray: [
                 {
                     id: "movedIndex",
@@ -26,7 +26,7 @@ describe("CompareEngine", () => {
                 }
             ]
         };
-        const jsonRight = {
+        const jsonRight: JsonValue = {
             objectArray: [
                 {
                     id: "newObject",

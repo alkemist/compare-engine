@@ -1,6 +1,6 @@
 import {CompareState} from "./compare-state";
 import {PanelEnum} from "./panel.enum";
-import {JsonObject, JsonValue} from "./json-value.interface";
+import {JsonArray, JsonObject, JsonValue} from "./json-value.interface";
 import {Utils} from "./utils";
 import {FindedItemInterface} from "./finded-item.interface";
 import {JsonPath} from "./json-path";
@@ -157,8 +157,9 @@ export class CompareEngine {
                     const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
                     const objectPath = currentPath.slice(0, arrayPath.length + 1);
 
-                    const sideObject = Utils.getIn(currentRoot, objectPath);
+                    const sideObject = Utils.getIn(currentRoot, objectPath) as JsonValue;
 
+                    //if (sideObject) {
                     const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
                     const otherSideObject = itemFinded.value;
 
@@ -189,6 +190,9 @@ export class CompareEngine {
                     } else {
                         compareState = this.compareValues(panel);
                     }
+                    /*} else {
+                        compareState = this.compareValues(panel);
+                    }*/
                 }
             } else {
                 compareState = this.compareValues(panel);
@@ -202,11 +206,22 @@ export class CompareEngine {
                 ? sideValue.map((_, index) => index)
                 : Object.keys(sideValue);
 
-            items.forEach((index: string | number) => {
+            items.forEach((index) => {
+                let subSideValue;
+                let subOtherSideValue;
+
+                if (sideValue !== undefined) {
+                    subSideValue = Utils.isNumber(index) ?
+                        (sideValue as JsonArray)[index] : (sideValue as JsonObject)[index];
+                }
+
+                if (otherSideValue !== undefined) {
+                    subOtherSideValue = Utils.isNumber(index) ?
+                        (otherSideValue as JsonArray)[index] : (otherSideValue as JsonObject)[index];
+                }
+
                 this.compare(
-                    panel, sideValue ? sideValue[index] : undefined,
-                    otherSideValue ? otherSideValue[index] : undefined,
-                    path.clone().add(index)
+                    panel, subSideValue, subOtherSideValue, path.clone().add(index)
                 )
             });
         }

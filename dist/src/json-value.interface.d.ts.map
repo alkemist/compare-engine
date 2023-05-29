@@ -1,0 +1,1 @@
+{"version":3,"file":"json-value.interface.d.ts","sourceRoot":"src/","sources":["src/json-value.interface.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,aAAa,GAAG,MAAM,GAAG,MAAM,GAAG,OAAO,GAAG,IAAI,CAAC;AAC7D,MAAM,MAAM,UAAU,GAAG;IACrB,CAAC,GAAG,EAAE,MAAM,GAAG,SAAS,CAAC;CAC5B,CAAC;AACF,MAAM,MAAM,SAAS,GAAG,SAAS,EAAE,CAAC;AACpC,MAAM,MAAM,SAAS,GAAG,UAAU,GAAG,SAAS,GAAG,aAAa,CAAC"}
