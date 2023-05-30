@@ -48,6 +48,10 @@ export class TypeState {
     }
 
     get isRecord() {
-        return this._value === TypeStateEnum.RECORD;
+        return this._type === TypeStateEnum.RECORD;
+    }
+
+    get isFunction() {
+        return this._type === TypeStateEnum.FUNCTION;
     }
 }

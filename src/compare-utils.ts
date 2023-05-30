@@ -90,6 +90,8 @@ export abstract class CompareUtils {
 
         if (typeState.isPrimitive) {
             return value;
+        } else if (typeState.isFunction) {
+            return value.toString();
         }
 
         const serialize: Record<string | number, JsonValue> = typeState.isArray ?
