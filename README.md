@@ -112,9 +112,9 @@ Compares 2 json, considering array object movement :
     compareEngine.getLeftState("objectArray/2") // return EQUAL CompareState
     compareEngine.getLeftState("objectArray/2/id") // return NONE CompareState
 
-## Exposed interfaces
+## Exposed models, enums and utils
 
-    CompareEngine {
+    class CompareEngine {
         constructor(protected determineArrayIndexFn?: (paths: string[]) => string)
 
         updateLeft(json: any): void
@@ -128,7 +128,7 @@ Compares 2 json, considering array object movement :
         getRightState(paths: string[] | string): CompareState
     }
 
-    CompareState {
+    class CompareState {
         value: CompareStateEnum
 
         isNone(): boolean
@@ -147,6 +147,17 @@ Compares 2 json, considering array object movement :
         UPDATED = "updated",
         REMOVED = "removed",
         EQUAL = "equal",
+    }
+
+    abstract class CompareUtils {
+        static isNumber(num: JsonPrimitive): num is number
+        static isArray<T>(arr: unknown): arr is T[]
+        static isString(str: unknown): obj is string
+        static isObject(obj: unknown): obj is JsonObject
+
+        static isEqual(sideValue: unknown, otherSideValue: unknown): boolean
+
+        static deepClone<T, I>(source: T): T
     }
 
 ## License

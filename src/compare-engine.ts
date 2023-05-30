@@ -1,7 +1,7 @@
 import {CompareState} from "./compare-state";
 import {PanelEnum} from "./panel.enum";
 import {JsonArray, JsonObject, JsonValue} from "./json-value.interface";
-import {Utils} from "./utils";
+import {CompareUtils} from "./compare-utils";
 import {FindedItemInterface} from "./finded-item.interface";
 import {JsonPath} from "./json-path";
 
@@ -55,7 +55,7 @@ export class CompareEngine {
 
     protected getState(panel: PanelEnum, path: string[] | string): CompareState {
         return this.compareStateIndex[panel].get(
-            Utils.isArray(path) ? path.join("/") : path
+            CompareUtils.isArray(path) ? path.join("/") : path
         ) ?? CompareState.NONE;
     }
 
@@ -94,7 +94,7 @@ export class CompareEngine {
     ): FindedItemInterface {
         let itemIndex;
 
-        if (searchKey && Utils.isObject(sideValue) && sideValue[searchKey] !== undefined) {
+        if (searchKey && CompareUtils.isObject(sideValue) && sideValue[searchKey] !== undefined) {
             itemIndex = otherSideItems
                 .findIndex((item) => item[searchKey] === sideValue[searchKey]);
         } else {
@@ -116,7 +116,7 @@ export class CompareEngine {
             return CompareState.ADDED;
         }
 
-        return Utils.isEqual(sideValue, otherSideValue)
+        return CompareUtils.isEqual(sideValue, otherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
     }
@@ -125,8 +125,8 @@ export class CompareEngine {
         : void {
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
 
-        const isArray = Utils.isArray(sideValue);
-        const isObject = !isArray && Utils.isObject(sideValue);
+        const isArray = CompareUtils.isArray(sideValue);
+        const isObject = !isArray && CompareUtils.isObject(sideValue);
         const isPrimitive = !isArray && !isObject;
 
         if (!isPrimitive) {
@@ -139,25 +139,25 @@ export class CompareEngine {
 
         let currentRoot = this.jsonPanels[panel];
         let currentOtherRoot = this.jsonPanels[otherPanel];
-        let currentPath = Utils.deepClone(path);
-        let currentSideValue = Utils.deepClone(sideValue);
-        let currentOtherSideValue = Utils.deepClone(otherSideValue);
+        let currentPath = CompareUtils.deepClone(path);
+        let currentSideValue = CompareUtils.deepClone(sideValue);
+        let currentOtherSideValue = CompareUtils.deepClone(otherSideValue);
 
         arrayDiffLevels.forEach((arrayDiffLevel) => {
 
             const arrayPath = currentPath.slice(0, currentPath.length - arrayDiffLevel);
 
             const otherSideItems =
-                Utils.getIn(currentOtherRoot, arrayPath);
+                CompareUtils.getIn(currentOtherRoot, arrayPath);
 
-            if (otherSideItems && Utils.isArray<JsonObject>(otherSideItems)) {
+            if (otherSideItems && CompareUtils.isArray<JsonObject>(otherSideItems)) {
                 if (arrayDiffLevel === 0) {
                     compareState = this.compareValues(panel, currentSideValue, currentOtherSideValue);
                 } else {
                     const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
                     const objectPath = currentPath.slice(0, arrayPath.length + 1);
 
-                    const sideObject = Utils.getIn(currentRoot, objectPath) as JsonValue;
+                    const sideObject = CompareUtils.getIn(currentRoot, objectPath) as JsonValue;
 
                     //if (sideObject) {
                     const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
@@ -168,7 +168,7 @@ export class CompareEngine {
 
                         if (arrayDiffLevel === 1) {
                             const index = parseInt([...currentPath].pop() as string, 10);
-                            currentSideValue = Utils.getIn(sideObject, propertyPath);
+                            currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
 
                             const compareIndex = this.compareValues(panel, index, itemFinded.index);
                             const compareValue = this.compareValues(panel, currentSideValue, itemFinded.value);
@@ -176,17 +176,17 @@ export class CompareEngine {
                             compareState = compareIndex.isUpdated || compareValue.isUpdated
                                 ? CompareState.UPDATED : CompareState.EQUAL;
                         } else {
-                            currentSideValue = Utils.getIn(sideObject, propertyPath);
-                            currentOtherSideValue = Utils.getIn(otherSideObject, propertyPath);
+                            currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
+                            currentOtherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
 
                             compareState = this.compareValues(panel, currentSideValue, currentOtherSideValue);
                         }
 
-                        currentPath = Utils.deepClone(propertyPath);
-                        currentRoot = Utils.deepClone(sideObject);
-                        currentSideValue = Utils.deepClone(sideObject);
-                        currentOtherRoot = Utils.deepClone(otherSideObject);
-                        currentOtherSideValue = Utils.deepClone(otherSideObject);
+                        currentPath = CompareUtils.deepClone(propertyPath);
+                        currentRoot = CompareUtils.deepClone(sideObject);
+                        currentSideValue = CompareUtils.deepClone(sideObject);
+                        currentOtherRoot = CompareUtils.deepClone(otherSideObject);
+                        currentOtherSideValue = CompareUtils.deepClone(otherSideObject);
                     } else {
                         compareState = this.compareValues(panel);
                     }
@@ -211,12 +211,12 @@ export class CompareEngine {
                 let subOtherSideValue;
 
                 if (sideValue !== undefined) {
-                    subSideValue = Utils.isNumber(index) ?
+                    subSideValue = CompareUtils.isNumber(index) ?
                         (sideValue as JsonArray)[index] : (sideValue as JsonObject)[index];
                 }
 
                 if (otherSideValue !== undefined) {
-                    subOtherSideValue = Utils.isNumber(index) ?
+                    subOtherSideValue = CompareUtils.isNumber(index) ?
                         (otherSideValue as JsonArray)[index] : (otherSideValue as JsonObject)[index];
                 }
 
