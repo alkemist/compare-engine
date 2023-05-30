@@ -1,16 +1,21 @@
 {
-  "name": "json-compare-engine",
-  "version": "1.0.4",
+  "name": "@alkemist/json-compare-engine",
+  "version": "1.0.6",
   "description": "Json comparison engine",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "private": false,
   "scripts": {
     "build": "rm -f src/*.d.* && rm -f index.d.* && tsc",
-    "test": "jest src/compare-engine.spec.ts"
+    "publish": "npm publish",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alkemist/json-compare-engine.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
     "typescript",

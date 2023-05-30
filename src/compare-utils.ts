@@ -42,6 +42,12 @@ export abstract class CompareUtils {
         return source;
     }
 
+    /**
+     * Retrieves an element from a tree
+     * @author @josdejong/svelte-jsoneditor
+     * @param object
+     * @param path
+     */
     static getIn(object: JsonValue, path: string[]): JsonValue | undefined {
         let value: JsonValue | undefined = object
         let i = 0

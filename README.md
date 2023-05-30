@@ -2,8 +2,8 @@
 
 ## Installation
 
-* From npm: `npm install compare-engine`
-* From yarn: `yarn add compare-engine`
+* From npm: `npm install @alkemist/json-compare-engine`
+* From yarn: `yarn add @alkemist/json-compare-engine`
 
 ## Test
 
@@ -20,7 +20,7 @@ Compares 2 json, considering array object movement :
 
 ## Examples
 
-    import {CompareEngine} from 'compare-engine';
+    import {CompareEngine} from '@alkemist/json-compare-engine';
 
     const jsonLeft = {
         objectArray: [
@@ -158,6 +158,8 @@ Compares 2 json, considering array object movement :
         static isEqual(sideValue: unknown, otherSideValue: unknown): boolean
 
         static deepClone<T, I>(source: T): T
+
+        static getIn(object: JsonValue, path: string[]): JsonValue | undefined
     }
 
 ## License
