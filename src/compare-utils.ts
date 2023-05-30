@@ -1,4 +1,5 @@
-import {JsonObject, JsonPrimitive, JsonValue} from "./json-value.interface";
+import {JsonArray, JsonObject, JsonPrimitive, JsonValue} from "./json-value.interface";
+import {TypeState} from "./type-state";
 
 export abstract class CompareUtils {
     static isNumber(num: JsonPrimitive): num is number {
@@ -15,6 +16,18 @@ export abstract class CompareUtils {
 
     static isObject(obj: unknown): obj is JsonObject {
         return obj !== null && typeof obj === "object";
+    }
+
+    static isFunction(func: unknown): func is Function {
+        return (typeof func === 'function')
+            || (func instanceof Function)
+            || {}.toString.call(func) === '[object Function]';
+    }
+
+    static isPrimitive(value: unknown): value is JsonPrimitive {
+        return !CompareUtils.isObject(value)
+            && !CompareUtils.isArray(value)
+            && !CompareUtils.isFunction(value);
     }
 
     static isEqual(sideValue: unknown, otherSideValue: unknown): boolean {
@@ -67,5 +80,33 @@ export abstract class CompareUtils {
         }
 
         return value
+    }
+
+    static serialize(value: any): JsonValue {
+        const typeState = new TypeState(value);
+
+        console.log("--- value", value);
+        console.log("--- type", typeState.type);
+
+        if (typeState.isPrimitive) {
+            return value;
+        }
+
+        const serialize: Record<string | number, JsonValue> = typeState.isArray ?
+            [] as Record<number, JsonValue> : {} as JsonObject;
+
+        const items = CompareUtils.isArray(value)
+            ? value.map((_, index) => index)
+            : Object.keys(value);
+
+        console.log("--- items", items);
+
+        items.forEach((index) => {
+            const child = CompareUtils.isNumber(index) ?
+                (value as JsonArray)[index] : (value as JsonObject)[index];
+            serialize[index] = CompareUtils.serialize(child);
+        });
+
+        return serialize;
     }
 }
