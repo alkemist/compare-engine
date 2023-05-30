@@ -1,6 +1,6 @@
 {
-  "name": "@alkemist/json-compare-engine",
-  "version": "1.0.6",
+  "name": "@alkemist/compare-engine",
+  "version": "1.0.7",
   "description": "Json comparison engine",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alkemist/json-compare-engine.git"
+    "url": "git+https://github.com/alkemist/compare-engine.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -28,9 +28,9 @@
   "author": "Jérémy ACHAIN",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/alkemist/json-compare-engine/issues"
+    "url": "https://github.com/alkemist/compare-engine/issues"
   },
-  "homepage": "https://github.com/alkemist/json-compare-engine#readme",
+  "homepage": "https://github.com/alkemist/compare-engine#readme",
   "devDependencies": {
     "jest": "^29.5.0",
     "jest-cli": "^29.5.0",

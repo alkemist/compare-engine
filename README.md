@@ -2,8 +2,8 @@
 
 ## Installation
 
-* From npm: `npm install @alkemist/json-compare-engine`
-* From yarn: `yarn add @alkemist/json-compare-engine`
+* From npm: `npm install @alkemist/compare-engine`
+* From yarn: `yarn add @alkemist/compare-engine`
 
 ## Test
 
@@ -20,7 +20,7 @@ Compares 2 json, considering array object movement :
 
 ## Examples
 
-    import {CompareEngine} from '@alkemist/json-compare-engine';
+    import {CompareEngine} from '@alkemist/compare-engine';
 
     const jsonLeft = {
         objectArray: [
