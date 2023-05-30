@@ -1,10 +1,4 @@
-export declare enum CompareStateEnum {
-    NONE = "",
-    ADDED = "added",
-    UPDATED = "updated",
-    REMOVED = "removed",
-    EQUAL = "equal"
-}
+import { CompareStateEnum } from "./compare-state.enum";
 export declare class CompareState {
     private _value;
     protected constructor(_value?: CompareStateEnum);

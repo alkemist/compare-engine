@@ -12,13 +12,16 @@
 
 ## About
 
-Compares 2 json, considering array object movement :
+Compares 2 value, considering array object movement :
 
 - Either with a signature (identical object)
 - Or with a key defined by the method passed to the constructor
 - The search is recursive: if an object has been moved within a moved object, it will be detected as moved
+- Takes into consideration : value type/class, function name and signature (without parameter type)
 
 ## Examples
+
+### JSON
 
     import {CompareEngine} from '@alkemist/compare-engine';
 
@@ -112,10 +115,45 @@ Compares 2 json, considering array object movement :
     compareEngine.getLeftState("objectArray/2") // return EQUAL CompareState
     compareEngine.getLeftState("objectArray/2/id") // return NONE CompareState
 
+### Classes
+
+    class Parent {
+        constructor(protected property = "value") {
+        }
+    }
+
+    class Child extends Parent {
+        constructor(protected override property = "value") {
+            super();
+        }
+    }
+
 ## Exposed models, enums and utils
 
+    type NotEvaluable = null | undefined;
+    type ValuePrimitive = string | number | boolean
+    type ValueFunction = Function;
+    type ValueArray = AnyValue[];
+    type ValueObject = object;
+    type ValueRecord = { [key: string]: AnyValue; };
+    type ValueTree = ValueArray | ValueObject | ValueRecord;
+    type Evaluable = ValuePrimitive | ValueFunction | ValueTree;
+    type AnyValue = Evaluable | NotEvaluable;
+
+    enum CompareStateEnum {
+        NONE = "",
+        ADDED = "added",
+        UPDATED = "updated",
+        REMOVED = "removed",
+        EQUAL = "equal",
+    }
+
     class CompareEngine {
-        constructor(protected determineArrayIndexFn?: (paths: string[]) => string)
+        constructor(
+            protected determineArrayIndexFn?: (paths: string[]) => string
+            leftValue: AnyValue = null,
+            rightValue: AnyValue = null
+        )
 
         updateLeft(json: any): void
         updateRight(json: any): void
@@ -141,25 +179,24 @@ Compares 2 json, considering array object movement :
         toString(): string
     }
 
-    enum CompareStateEnum {
-        NONE = "",
-        ADDED = "added",
-        UPDATED = "updated",
-        REMOVED = "removed",
-        EQUAL = "equal",
-    }
-
     abstract class CompareUtils {
-        static isNumber(num: JsonPrimitive): num is number
-        static isArray<T>(arr: unknown): arr is T[]
-        static isString(str: unknown): obj is string
-        static isObject(obj: unknown): obj is JsonObject
+        static isNumber(value: AnyValue): value is number
+        static isArray<T = AnyValue>(value: AnyValue): value is T[]
+        static isString(value: AnyValue): value is string
+        static isRecord(value: AnyValue): value is ValueRecord
+        static isTree(value: AnyValue): value is ValueTree
+        static isFunction(value: AnyValue): value is ValueFunction
+        static isPrimitive(value: AnyValue): value is ValuePrimitive
 
-        static isEqual(sideValue: unknown, otherSideValue: unknown): boolean
+        static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean
 
         static deepClone<T, I>(source: T): T
 
-        static getIn(object: JsonValue, path: string[]): JsonValue | undefined
+        static getIn(object: AnyValue, path: string[]): AnyValue
+    
+        static hasProperty(value: AnyValue, path: string[]): boolean
+
+        static serialize(value: AnyValue): string
     }
 
 ## License

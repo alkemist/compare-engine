@@ -1,17 +1,20 @@
 import {CompareState} from "./compare-state";
 import {PanelEnum} from "./panel.enum";
-import {JsonArray, JsonObject, JsonValue} from "./json-value.interface";
+import {AnyValue, ValueRecord} from "./value.interface";
 import {CompareUtils} from "./compare-utils";
 import {FindedItemInterface} from "./finded-item.interface";
-import {JsonPath} from "./json-path";
-
+import {Path} from "./path";
 
 export class CompareEngine {
     private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
     private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
-    private readonly jsonPanels: Record<PanelEnum, JsonValue>;
+    private readonly panels: Record<PanelEnum, AnyValue>;
 
-    constructor(protected determineArrayIndexFn?: (paths: string[]) => string) {
+    constructor(
+        protected determineArrayIndexFn?: (paths: string[]) => string,
+        leftValue: AnyValue = null,
+        rightValue: AnyValue = null
+    ) {
         this.compareStateIndex = {
             left: new Map<string, CompareState>(),
             right: new Map<string, CompareState>()
@@ -22,23 +25,26 @@ export class CompareEngine {
             right: new Map<string, boolean>()
         };
 
-        this.jsonPanels = {
-            left: null,
-            right: null
+        this.panels = {
+            left: leftValue,
+            right: rightValue
         };
     }
 
-    updateLeft(json: JsonValue) {
-        this.update(PanelEnum.LEFT, json);
+    updateLeft(value: AnyValue) {
+        this.update(PanelEnum.LEFT, value);
     }
 
-    updateRight(json: JsonValue) {
-        this.update(PanelEnum.RIGHT, json);
+    updateRight(value: AnyValue) {
+        this.update(PanelEnum.RIGHT, value);
     }
 
     updateCompareIndex(): void {
-        this.compare(PanelEnum.LEFT, this.jsonPanels[PanelEnum.LEFT], this.jsonPanels[PanelEnum.RIGHT]);
-        this.compare(PanelEnum.RIGHT, this.jsonPanels[PanelEnum.RIGHT], this.jsonPanels[PanelEnum.LEFT]);
+        this.compareStateIndex[PanelEnum.LEFT].clear();
+        this.compareStateIndex[PanelEnum.RIGHT].clear();
+
+        this.compare(PanelEnum.LEFT, this.panels[PanelEnum.LEFT]);
+        this.compare(PanelEnum.RIGHT, this.panels[PanelEnum.RIGHT]);
     }
 
     hasChange(): boolean {
@@ -59,14 +65,13 @@ export class CompareEngine {
         ) ?? CompareState.NONE;
     }
 
-    protected update(panel: PanelEnum, json: JsonValue): void {
-        this.jsonPanels[panel] = json;
-        this.compareStateIndex[panel].clear();
+    protected update(panel: PanelEnum, value: AnyValue): void {
+        this.panels[panel] = value;
         this.arrayIndex[panel].clear();
     }
 
     // We retrieve the level difference between each array
-    protected findArrayDiffLevels(panel: PanelEnum, path: JsonPath, level = 1, diffs: number[] = []): number[] {
+    protected findArrayDiffLevels(panel: PanelEnum, path: Path, level = 1, diffs: number[] = []): number[] {
         const currentPath = path.slice(0, level);
         const isArray = this.arrayIndex[panel].get(currentPath.toString()) ?? false;
 
@@ -88,13 +93,13 @@ export class CompareEngine {
     }
 
     protected findCompareItem(
-        sideValue: JsonValue,
-        otherSideItems: JsonObject[],
+        sideValue: AnyValue,
+        otherSideItems: ValueRecord[],
         searchKey: string
     ): FindedItemInterface {
         let itemIndex;
 
-        if (searchKey && CompareUtils.isObject(sideValue) && sideValue[searchKey] !== undefined) {
+        if (searchKey && CompareUtils.isRecord(sideValue) && CompareUtils.hasProperty(sideValue, [searchKey])) {
             itemIndex = otherSideItems
                 .findIndex((item) => item[searchKey] === sideValue[searchKey]);
         } else {
@@ -108,121 +113,194 @@ export class CompareEngine {
         };
     }
 
-    protected compareValues(panel: PanelEnum, sideValue?: JsonValue, otherSideValue?: JsonValue): CompareState {
-        if (panel === PanelEnum.LEFT && otherSideValue === undefined) {
-            return CompareState.REMOVED;
-        }
-        if (panel === PanelEnum.RIGHT && otherSideValue === undefined) {
-            return CompareState.ADDED;
+    protected comparePropertyValues(
+        panel: PanelEnum,
+        sideValue: AnyValue,
+        otherSideObject: AnyValue,
+        propertyPath: Path,
+        showLog = false,
+    ): CompareState {
+        if (showLog) {
+            console.log('--- Compare property value', propertyPath, CompareUtils.hasProperty(otherSideObject, propertyPath) ? "exist" : "not exist");
+            console.log('--- in object', otherSideObject)
         }
 
+        if (!CompareUtils.hasProperty(otherSideObject, propertyPath)) {
+            return this.getIncomparableState(panel);
+        }
+
+        const currentOtherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
+
+        if (showLog) {
+            console.log('--- Is equal ?', CompareUtils.isEqual(sideValue, currentOtherSideValue));
+            console.log('--- Other side value', currentOtherSideValue);
+        }
+
+        return CompareUtils.isEqual(sideValue, currentOtherSideValue)
+            ? CompareState.EQUAL
+            : CompareState.UPDATED;
+    }
+
+    protected getIncomparableState(panel: PanelEnum) {
+        return panel === PanelEnum.LEFT ? CompareState.REMOVED : CompareState.ADDED;
+    }
+
+    protected compareValues(panel: PanelEnum, sideValue: AnyValue, otherSideValue: AnyValue): CompareState {
         return CompareUtils.isEqual(sideValue, otherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
     }
 
-    protected compare(panel: PanelEnum, sideValue: JsonValue | undefined, otherSideValue: JsonValue | undefined, path: JsonPath = new JsonPath())
+    protected compare(panel: PanelEnum, sideValue: AnyValue | undefined, path: Path = new Path())
         : void {
+        let showLog = false;
+        let otherSideValue: AnyValue, compareState = CompareState.NONE;
+
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
 
-        const isArray = CompareUtils.isArray(sideValue);
-        const isObject = !isArray && CompareUtils.isObject(sideValue);
-        const isPrimitive = !isArray && !isObject;
 
-        if (!isPrimitive) {
-            this.arrayIndex[panel].set(path.toString(), isArray);
+        if (!CompareUtils.isPrimitive(sideValue)) {
+            this.arrayIndex[panel].set(path.toString(), CompareUtils.isArray(sideValue));
         }
 
         const arrayDiffLevels = this.findArrayDiffLevels(panel, path);
 
-        let compareState = this.compareValues(panel, sideValue, otherSideValue);
+        if (showLog) {
+            console.log(`- [${panel}] ${path.toString()}`)
+            console.log('-- Side value : ', sideValue);
+            console.log('-- Array diffs : ', arrayDiffLevels);
+        }
 
-        let currentRoot = this.jsonPanels[panel];
-        let currentOtherRoot = this.jsonPanels[otherPanel];
+        let currentRoot = this.panels[panel];
+        let currentOtherRoot = this.panels[otherPanel];
         let currentPath = CompareUtils.deepClone(path);
         let currentSideValue = CompareUtils.deepClone(sideValue);
-        let currentOtherSideValue = CompareUtils.deepClone(otherSideValue);
 
-        arrayDiffLevels.forEach((arrayDiffLevel) => {
+        if (arrayDiffLevels.length > 0) {
+            arrayDiffLevels.forEach((arrayDiffLevel) => {
+                const arrayPath = currentPath.slice(0, currentPath.length - arrayDiffLevel);
+                const otherSideItems = CompareUtils.getIn(currentOtherRoot, arrayPath);
 
-            const arrayPath = currentPath.slice(0, currentPath.length - arrayDiffLevel);
+                if (showLog) {
+                    console.log('--- Current array diff : ', arrayDiffLevel)
+                    console.log('--- Current root : ', currentRoot)
+                    console.log('--- Current side value : ', currentSideValue)
+                    console.log('--- Array path : ', arrayPath)
+                    console.log('--- Other side items : ', otherSideItems)
+                    console.log('--- Other side is array ?', CompareUtils.isArray<ValueRecord>(otherSideItems))
+                }
 
-            const otherSideItems =
-                CompareUtils.getIn(currentOtherRoot, arrayPath);
+                if (CompareUtils.isArray<ValueRecord>(otherSideItems)) {
+                    if (arrayDiffLevel === 0) {
+                        currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
 
-            if (otherSideItems && CompareUtils.isArray<JsonObject>(otherSideItems)) {
-                if (arrayDiffLevel === 0) {
-                    compareState = this.compareValues(panel, currentSideValue, currentOtherSideValue);
-                } else {
-                    const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
-                    const objectPath = currentPath.slice(0, arrayPath.length + 1);
-
-                    const sideObject = CompareUtils.getIn(currentRoot, objectPath) as JsonValue;
-
-                    //if (sideObject) {
-                    const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
-                    const otherSideObject = itemFinded.value;
-
-                    if (otherSideObject) {
-                        const propertyPath = currentPath.slice(objectPath.length);
-
-                        if (arrayDiffLevel === 1) {
-                            const index = parseInt([...currentPath].pop() as string, 10);
-                            currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
-
-                            const compareIndex = this.compareValues(panel, index, itemFinded.index);
-                            const compareValue = this.compareValues(panel, currentSideValue, itemFinded.value);
-
-                            compareState = compareIndex.isUpdated || compareValue.isUpdated
-                                ? CompareState.UPDATED : CompareState.EQUAL;
-                        } else {
-                            currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
-                            currentOtherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
-
-                            compareState = this.compareValues(panel, currentSideValue, currentOtherSideValue);
+                        if (showLog) {
+                            console.log('-- Array diff 0');
+                            console.log('-- Property path : ', arrayPath);
+                            console.log('-- Compare : ', currentSideValue);
+                            console.log('-- With : ', otherSideItems);
                         }
 
-                        currentPath = CompareUtils.deepClone(propertyPath);
-                        currentRoot = CompareUtils.deepClone(sideObject);
-                        currentSideValue = CompareUtils.deepClone(sideObject);
-                        currentOtherRoot = CompareUtils.deepClone(otherSideObject);
-                        currentOtherSideValue = CompareUtils.deepClone(otherSideObject);
+                        compareState = this.comparePropertyValues(panel,
+                            currentSideValue, currentOtherRoot, arrayPath, showLog)
                     } else {
-                        compareState = this.compareValues(panel);
-                    }
-                    /*} else {
-                        compareState = this.compareValues(panel);
-                    }*/
-                }
-            } else {
-                compareState = this.compareValues(panel);
-            }
-        });
+                        const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
+                        const objectPath = currentPath.slice(0, arrayPath.length + 1);
 
+                        const sideObject = CompareUtils.getIn(currentRoot, objectPath) as AnyValue;
+
+                        //if (sideObject) {
+                        const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
+                        const otherSideObject = itemFinded.value;
+
+                        if (otherSideObject) {
+                            const propertyPath = currentPath.slice(objectPath.length);
+
+                            if (arrayDiffLevel === 1) {
+                                const index = parseInt([...currentPath].pop() as string, 10);
+                                currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
+                                if (showLog) {
+                                    console.log('-- Array diff 1', propertyPath);
+                                    console.log('-- Other side value : ', itemFinded.value);
+                                }
+
+                                const compareIndex = this.compareValues(panel, index, itemFinded.index);
+                                const compareValue = this.compareValues(panel, currentSideValue, itemFinded.value);
+
+                                compareState = compareIndex.isUpdated || compareValue.isUpdated
+                                    ? CompareState.UPDATED : CompareState.EQUAL;
+                            } else {
+                                currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
+                                otherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
+                                if (showLog) {
+                                    console.log('-- Array diff > 1', propertyPath);
+                                    console.log('-- Other side object : ', otherSideObject);
+                                    console.log('-- Other side value : ', otherSideValue);
+                                }
+
+                                compareState = this.comparePropertyValues(
+                                    panel,
+                                    currentSideValue,
+                                    otherSideObject,
+                                    propertyPath,
+                                    showLog
+                                );
+                            }
+
+                            currentPath = CompareUtils.deepClone(propertyPath);
+                            currentRoot = CompareUtils.deepClone(sideObject);
+                            currentSideValue = CompareUtils.deepClone(sideObject);
+                            currentOtherRoot = CompareUtils.deepClone(otherSideObject);
+                            otherSideValue = CompareUtils.deepClone(otherSideObject);
+                        } else {
+                            compareState = this.getIncomparableState(panel);
+                        }
+                    }
+                } else {
+                    currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
+
+                    if (showLog) {
+                        console.log('-- No other side array')
+                        console.log('-- Compare', currentSideValue)
+                        console.log('-- With', otherSideItems)
+                    }
+
+                    compareState = this.comparePropertyValues(panel,
+                        currentSideValue, currentOtherRoot, arrayPath, showLog)
+                }
+            });
+        } else {
+            otherSideValue = CompareUtils.getIn(this.panels[otherPanel], path);
+
+            compareState = this.comparePropertyValues(
+                panel,
+                currentSideValue,
+                this.panels[otherPanel],
+                path
+            );
+
+            if (showLog) {
+                console.log('-- No array upside');
+                console.log('-- Other side value : ', otherSideValue);
+            }
+        }
+
+        if (showLog) {
+            console.log('-- Update state with : ', compareState);
+        }
         this.compareStateIndex[panel].set(path.toString(), compareState);
 
-        if (compareState.isUpdated && !isPrimitive) {
-            const items = isArray
-                ? sideValue.map((_, index) => index)
+        if (compareState.isUpdated && CompareUtils.isTree(sideValue)) {
+            const items = CompareUtils.isArray(sideValue)
+                ? sideValue.map((_, index) => index.toString())
                 : Object.keys(sideValue);
 
             items.forEach((index) => {
-                let subSideValue;
-                let subOtherSideValue;
+                const subPath = path.clone().add(index);
+                const subSideValue = CompareUtils.isArray(sideValue) ?
+                    sideValue[parseInt(index, 10)] : (sideValue as ValueRecord)[index];
 
-                if (sideValue !== undefined) {
-                    subSideValue = CompareUtils.isNumber(index) ?
-                        (sideValue as JsonArray)[index] : (sideValue as JsonObject)[index];
-                }
-
-                if (otherSideValue !== undefined) {
-                    subOtherSideValue = CompareUtils.isNumber(index) ?
-                        (otherSideValue as JsonArray)[index] : (otherSideValue as JsonObject)[index];
-                }
-
-                this.compare(
-                    panel, subSideValue, subOtherSideValue, path.clone().add(index)
-                )
+                this.compare(panel, subSideValue, subPath)
             });
         }
     }
