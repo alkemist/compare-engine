@@ -1,4 +1,4 @@
-export type JsonPrimitive = string | number | boolean | null;
+export type JsonPrimitive = string | number | boolean | null | undefined;
 export type JsonObject = {
     [key: string]: JsonValue;
 };

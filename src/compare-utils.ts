@@ -2,7 +2,7 @@ import {JsonObject, JsonPrimitive, JsonValue} from "./json-value.interface";
 
 export abstract class CompareUtils {
     static isNumber(num: JsonPrimitive): num is number {
-        return num !== null && !isNaN(+num);
+        return num !== null && num !== undefined && !isNaN(+num);
     }
 
     static isArray<T>(arr: unknown): arr is T[] {
@@ -48,7 +48,7 @@ export abstract class CompareUtils {
      * @param object
      * @param path
      */
-    static getIn(object: JsonValue, path: string[]): JsonValue | undefined {
+    static getIn(object: JsonValue, path: string[]): JsonValue {
         let value: JsonValue | undefined = object
         let i = 0
 
