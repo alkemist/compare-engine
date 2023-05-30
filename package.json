@@ -6,7 +6,7 @@
   "types": "./index.d.ts",
   "private": false,
   "scripts": {
-    "build": "rm -f src/*.d.* && rm -f index.d.* && tsc",
+    "build": "rm -f src/*.d.* && rm -f *.d.* && tsc",
     "publish": "npm publish",
     "test": "jest"
   },
