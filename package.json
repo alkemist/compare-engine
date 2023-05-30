@@ -1,15 +1,16 @@
 {
   "name": "json-compare-engine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Json comparison engine",
-  "main": "index.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
+    "build": "rm -f src/*.d.* && rm -f index.d.* && tsc",
     "test": "jest src/compare-engine.spec.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alkemist/compare-engine.git"
+    "url": "git+https://github.com/alkemist/json-compare-engine.git"
   },
   "keywords": [
     "typescript",
@@ -22,13 +23,14 @@
   "author": "Jérémy ACHAIN",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/alkemist/compare-engine/issues"
+    "url": "https://github.com/alkemist/json-compare-engine/issues"
   },
-  "homepage": "https://github.com/alkemist/compare-engine#readme",
+  "homepage": "https://github.com/alkemist/json-compare-engine#readme",
   "devDependencies": {
     "jest": "^29.5.0",
     "jest-cli": "^29.5.0",
     "ts-jest": "^29.1.0",
+    "tsc": "^2.0.4",
     "typescript": "^5.0.4"
   }
 }

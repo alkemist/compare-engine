@@ -7,9 +7,9 @@ import {JsonPath} from "./json-path";
 
 
 export class CompareEngine {
-    protected compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
-    protected arrayIndex: Record<PanelEnum, Map<string, boolean>>;
-    protected jsonPanels: Record<PanelEnum, JsonValue>;
+    private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
+    private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
+    private readonly jsonPanels: Record<PanelEnum, JsonValue>;
 
     constructor(protected determineArrayIndexFn?: (paths: string[]) => string) {
         this.compareStateIndex = {

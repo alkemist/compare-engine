@@ -5,9 +5,9 @@ import { FindedItemInterface } from "./finded-item.interface";
 import { JsonPath } from "./json-path";
 export declare class CompareEngine {
     protected determineArrayIndexFn?: ((paths: string[]) => string) | undefined;
-    protected compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
-    protected arrayIndex: Record<PanelEnum, Map<string, boolean>>;
-    protected jsonPanels: Record<PanelEnum, JsonValue>;
+    private readonly compareStateIndex;
+    private readonly arrayIndex;
+    private readonly jsonPanels;
     constructor(determineArrayIndexFn?: ((paths: string[]) => string) | undefined);
     updateLeft(json: JsonValue): void;
     updateRight(json: JsonValue): void;
