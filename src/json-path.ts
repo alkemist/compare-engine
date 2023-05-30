@@ -1,9 +1,5 @@
 export class JsonPath extends Array<string> {
 
-    slice(start?: number, end?: number): JsonPath {
-        return new JsonPath(...super.slice(start, end));
-    }
-
     add(el: string | number): JsonPath {
         super.push(el.toString());
         return this;
@@ -13,7 +9,11 @@ export class JsonPath extends Array<string> {
         return this.slice();
     }
 
-    toString(): string {
+    override slice(start?: number, end?: number): JsonPath {
+        return new JsonPath(...super.slice(start, end));
+    }
+
+    override toString(): string {
         return this.join('/');
     }
 }
