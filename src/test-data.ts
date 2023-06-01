@@ -88,15 +88,15 @@ const parentTestSerialized = {
 }
 
 const anyArray = [
+    '"1"',
+    "undefined",
+    "null",
+    "0",
     "1",
-    undefined,
-    null,
-    0,
-    1,
-    2,
-    2.1,
-    true,
-    {property: "value"},
+    "2",
+    "2.1",
+    "true",
+    '{property: ""value""}',
     voidFunction,
     paramsFunction,
     classicFunction,
@@ -129,28 +129,28 @@ const childTestSerialized = {
 }
 
 export const testValues = [
-    {name: "undefined", value: undefined, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: undefined},
-    {name: "null", value: null, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: null},
-    {name: "true", value: true, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: true},
-    {name: "false", value: false, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: false},
-    {name: "0", value: 0, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: 0},
-    {name: "1", value: 1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: 1},
-    {name: "2", value: 2, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: 2},
-    {name: "2.1", value: 2.1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: 2.1},
-    {name: "", value: "", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: ""},
-    {name: "string", value: "string", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "string"},
-    {name: "[]", value: [], expectedType: TypeStateEnum.ARRAY, expectedSerialize: []},
+    {name: "undefined", value: undefined, expectedType: TypeStateEnum.NO_EVALUABLE, expectedSerialize: "undefined"},
+    {name: "null", value: null, expectedType: TypeStateEnum.NO_EVALUABLE, expectedSerialize: "null"},
+    {name: "true", value: true, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "true"},
+    {name: "false", value: false, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "false"},
+    {name: "0", value: 0, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "0"},
+    {name: "1", value: 1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "1"},
+    {name: "2", value: 2, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "2"},
+    {name: "2.1", value: 2.1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "2.1"},
+    {name: "", value: "", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: '""'},
+    {name: "string", value: "string", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: '"string"'},
+    {name: "[]", value: [], expectedType: TypeStateEnum.ARRAY, expectedSerialize: "[]"},
     {
-        name: "[{property: \"value\"}]",
+        name: '[{property: "value"}]',
         value: [{property: "value"}],
         expectedType: TypeStateEnum.ARRAY,
-        expectedSerialize: [{property: "value"}]
+        expectedSerialize: '[{"property":"\\\"value\\\""}]'
     },
     {
-        name: "{property: \"value\"}",
+        name: '{property: "value"}',
         value: {property: "value"},
         expectedType: TypeStateEnum.RECORD,
-        expectedSerialize: {property: "value"}
+        expectedSerialize: '{"property":"\\\"value\\\""}'
     },
     {
         name: "voidFunction",

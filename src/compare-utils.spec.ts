@@ -7,8 +7,6 @@ describe("CompareUtils", () => {
         it.each(testValues)(
             "Value '$name' should serialize",
             (serializeTest) => {
-                console.log("-----------------------");
-                console.log("- test : ", serializeTest.name)
                 expect(CompareUtils.serialize(serializeTest.value))
                     .toStrictEqual(serializeTest.expectedSerialize);
             }

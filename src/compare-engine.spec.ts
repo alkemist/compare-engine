@@ -1,134 +1,208 @@
 import {describe, expect, it} from "@jest/globals";
 import {CompareEngine} from "./compare-engine";
-import {CompareStateEnum} from "./compare-state";
 import {AnyValue} from "./value.interface";
+import {CompareStateEnum} from "./compare-state.enum";
+
+class Parent<T extends boolean | string = string> {
+    constructor(protected property = "value") {
+    }
+
+    aFunction(value: T): T {
+        return value;
+    }
+}
+
+class Child extends Parent<boolean> {
+    constructor(protected override property = "value") {
+        super();
+    }
+}
+
+class OtherChild extends Parent {
+    constructor(protected override property = "value") {
+        super();
+    }
+
+    differentFunction() {
+        return true;
+    }
+}
 
 describe("CompareEngine", () => {
     describe("Readme example", () => {
-        const jsonLeft: AnyValue = {
-            objectArray: [
-                {
-                    id: "movedIndex",
-                    property: "old property",
-                    otherObjectArray: [
-                        {id: "1"},
-                        {id: "2"},
-                    ],
-                    otherArray: [
-                        0, 1, 2
-                    ]
-                },
-                {
-                    id: "removedObject",
-                },
-                {
-                    id: "equal"
-                }
-            ]
-        };
-        const jsonRight: AnyValue = {
-            objectArray: [
-                {
-                    id: "newObject",
-                },
-                {
-                    id: "movedIndex",
-                    property: "updated property",
-                    otherObjectArray: [
-                        {id: "2"},
-                        {id: "1"},
-                    ],
-                    otherArray: [
-                        2, 1, 3
-                    ]
-                },
-                {
-                    id: "equal"
-                }
-            ]
-        };
+        describe("Compare two JSON", () => {
+            const jsonLeft: AnyValue = {
+                objectArray: [
+                    {
+                        id: "movedIndex",
+                        property: "old property",
+                        otherObjectArray: [
+                            {id: "1"},
+                            {id: "2"},
+                        ],
+                        otherArray: [
+                            0, 1, 2
+                        ]
+                    },
+                    {
+                        id: "removedObject",
+                    },
+                    {
+                        id: "equal"
+                    }
+                ]
+            };
+            const jsonRight: AnyValue = {
+                objectArray: [
+                    {
+                        id: "newObject",
+                    },
+                    {
+                        id: "movedIndex",
+                        property: "updated property",
+                        otherObjectArray: [
+                            {id: "2"},
+                            {id: "1"},
+                        ],
+                        otherArray: [
+                            2, 1, 3
+                        ]
+                    },
+                    {
+                        id: "equal"
+                    }
+                ]
+            };
 
-        const compareEngine = new CompareEngine((_: string[]) => {
-            return "id";
+            let compareEngine = new CompareEngine((_: string[]) => {
+                return "id";
+            });
+
+            compareEngine.updateLeft(jsonLeft);
+            compareEngine.updateRight(jsonRight);
+            compareEngine.updateCompareIndex();
+
+            it.each([
+                {path: "", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/0/property", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherObjectArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/0/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/0/otherArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherArray/0", expected: CompareStateEnum.REMOVED},
+                {path: "objectArray/0/otherArray/1", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/0/otherArray/2", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1", expected: CompareStateEnum.REMOVED},
+                {path: "objectArray/1/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/2/id", expected: CompareStateEnum.NONE},
+            ] as CompareEngineTest[])(
+                "Get left compare state '$path' should return '$expected'",
+                (compareTest) => {
+                    expect(
+                        compareEngine.getLeftState(
+                            compareTest.path
+                        ).toString()
+                    ).toEqual(compareTest.expected);
+                }
+            );
+
+            it.each([
+                {path: "", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0", expected: CompareStateEnum.ADDED},
+                {path: "objectArray/0/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/1", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1/property", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherObjectArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1/otherArray", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherArray/0", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherArray/1", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1/otherArray/2", expected: CompareStateEnum.ADDED},
+                {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/2/id", expected: CompareStateEnum.NONE},
+            ] as CompareEngineTest[])(
+                "Get right compare state '$path' should return '$expected'",
+                (compareTest) => {
+                    expect(
+                        compareEngine.getRightState(
+                            compareTest.path
+                        ).toString()
+                    ).toEqual(compareTest.expected);
+                }
+            );
         });
 
-        compareEngine.updateLeft(jsonLeft);
-        compareEngine.updateRight(jsonRight);
-        compareEngine.updateCompareIndex();
+        describe("Compare two objects", () => {
+            describe.each([
+                {
+                    name: "Two parents", leftValue: new Parent(), rightValue: new Parent(),
+                    tests: [
+                        {path: "", expected: CompareStateEnum.EQUAL},
+                    ]
+                },
+                {
+                    // @TODO To improve with T type
+                    name: "Two parents with different T type",
+                    leftValue: new Parent<string>(),
+                    rightValue: new Parent<boolean>(),
+                    tests: [
+                        {path: "", expected: CompareStateEnum.EQUAL},
+                    ]
+                },
+                {
+                    name: "Parent and child", leftValue: new Parent(), rightValue: new Child(),
+                    tests: [
+                        {path: "", expected: CompareStateEnum.UPDATED},
+                    ]
+                },
+                {
+                    name: "Two child with differents values",
+                    leftValue: new Child(),
+                    rightValue: new Child("otherValue"),
+                    tests: [
+                        {path: "", expected: CompareStateEnum.UPDATED},
+                    ]
+                },
+                {
+                    name: "Two child with differents functions", leftValue: new Child(), rightValue: new OtherChild(),
+                    tests: [
+                        {path: "", expected: CompareStateEnum.UPDATED},
+                    ]
+                },
+            ] as CompareEngineExample[])(
+                "$name",
+                (compareExample) => {
+                    const compareEngine = new CompareEngine((_: string[]) => {
+                        return "id";
+                    }, compareExample.leftValue, compareExample.rightValue);
+                    compareEngine.updateCompareIndex();
 
-        it.each([
-            {path: "", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/0/property", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/otherObjectArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/0/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/0/otherArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0/otherArray/0", expected: CompareStateEnum.REMOVED},
-            {path: "objectArray/0/otherArray/1", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/0/otherArray/2", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1", expected: CompareStateEnum.REMOVED},
-            {path: "objectArray/1/id", expected: CompareStateEnum.NONE},
-            {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/2/id", expected: CompareStateEnum.NONE},
-        ] as CompareEngineTest[])(
-            "Get left compare state '$path' should return '$expected'",
-            (compareTest) => {
-                expect(
-                    compareEngine.getLeftState(
-                        compareTest.path
-                    ).toString()
-                ).toEqual(compareTest.expected);
-            }
-        );
-
-        it.each([
-            {path: "", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/0", expected: CompareStateEnum.ADDED},
-            {path: "objectArray/0/id", expected: CompareStateEnum.NONE},
-            {path: "objectArray/1", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/1/property", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherObjectArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/1/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/1/otherArray", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherArray/0", expected: CompareStateEnum.UPDATED},
-            {path: "objectArray/1/otherArray/1", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/1/otherArray/2", expected: CompareStateEnum.ADDED},
-            {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
-            {path: "objectArray/2/id", expected: CompareStateEnum.NONE},
-        ] as CompareEngineTest[])(
-            "Get right compare state '$path' should return '$expected'",
-            (compareTest) => {
-                expect(
-                    compareEngine.getRightState(
-                        compareTest.path
-                    ).toString()
-                ).toEqual(compareTest.expected);
-            }
-        );
+                    it.each(compareExample.tests)(
+                        "Get left compare state '$path' should return '$expected'",
+                        (compareTest) => {
+                            expect(
+                                compareEngine.getLeftState(
+                                    compareTest.path
+                                ).toString()
+                            ).toEqual(compareTest.expected);
+                        }
+                    );
+                });
+        })
     })
 
     describe("Configurations", () => {
-        class Parent {
-            constructor(protected property = "value") {
-            }
-        }
-
-        class Child extends Parent {
-            constructor(protected override property = "value") {
-                super();
-            }
-        }
-
         const jsonLeft: AnyValue = {
             longTree: {
                 1: {
@@ -572,6 +646,7 @@ describe("CompareEngine", () => {
                 {path: "objectArray/4", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/4/id", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/4/label", expected: CompareStateEnum.UPDATED},
+                // @TODO To imrove with parameter type
                 {path: "objectArray/4/func", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/4/object", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/4/object/property", expected: CompareStateEnum.NONE},
@@ -1089,4 +1164,11 @@ describe("CompareEngine", () => {
 interface CompareEngineTest {
     path: string,
     expected: CompareStateEnum,
+}
+
+interface CompareEngineExample {
+    name: string,
+    leftValue: AnyValue,
+    rightValue: AnyValue,
+    tests: CompareEngineTest[]
 }

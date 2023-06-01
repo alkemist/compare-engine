@@ -5,13 +5,16 @@ import {CompareUtils} from "./compare-utils";
 import {FindedItemInterface} from "./finded-item.interface";
 import {Path} from "./path";
 
-
 export class CompareEngine {
     private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
     private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
     private readonly panels: Record<PanelEnum, AnyValue>;
 
-    constructor(protected determineArrayIndexFn?: (paths: string[]) => string) {
+    constructor(
+        protected determineArrayIndexFn?: (paths: string[]) => string,
+        leftValue: AnyValue = null,
+        rightValue: AnyValue = null
+    ) {
         this.compareStateIndex = {
             left: new Map<string, CompareState>(),
             right: new Map<string, CompareState>()
@@ -23,8 +26,8 @@ export class CompareEngine {
         };
 
         this.panels = {
-            left: null,
-            right: null
+            left: leftValue,
+            right: rightValue
         };
     }
 
@@ -287,7 +290,7 @@ export class CompareEngine {
         }
         this.compareStateIndex[panel].set(path.toString(), compareState);
 
-        if (compareState.isUpdated && CompareUtils.hasChild(sideValue)) {
+        if (compareState.isUpdated && CompareUtils.isTree(sideValue)) {
             const items = CompareUtils.isArray(sideValue)
                 ? sideValue.map((_, index) => index.toString())
                 : Object.keys(sideValue);

@@ -1,3 +1,5 @@
-export {CompareEngine} from "./src/compare-engine";
-export {CompareState, CompareStateEnum} from "./src/compare-state";
-export {CompareUtils} from "./src/compare-utils";
+export * from "./src/compare-engine";
+export * from "./src/compare-state";
+export * from "./src/compare-state.enum";
+export * from "./src/compare-utils";
+export * from "./src/value.interface"

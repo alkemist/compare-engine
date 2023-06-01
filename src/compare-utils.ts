@@ -1,7 +1,6 @@
 import {
     AnyValue,
     Evaluable,
-    NotEvaluable,
     ValueArray,
     ValueFunction,
     ValuePrimitive,
@@ -11,32 +10,32 @@ import {
 import {TypeState} from "./type-state";
 
 export abstract class CompareUtils {
-    static hasValue(value: AnyValue): value is Evaluable {
+    static isEvaluable(value: AnyValue): value is Evaluable {
         return value !== null && value !== undefined;
     }
 
     static isNumber(value: AnyValue): value is number {
-        return CompareUtils.hasValue(value) && !isNaN(+value);
+        return CompareUtils.isEvaluable(value) && !isNaN(+value);
     }
 
     static isArray<T = AnyValue>(value: AnyValue): value is T[] {
-        return CompareUtils.hasValue(value) && Array.isArray(value);
+        return CompareUtils.isEvaluable(value) && Array.isArray(value);
     }
 
     static isString(value: AnyValue): value is string {
-        return CompareUtils.hasValue(value) && typeof value === "string";
+        return CompareUtils.isEvaluable(value) && typeof value === "string";
     }
 
     static isRecord(value: AnyValue): value is ValueRecord {
-        return CompareUtils.hasValue(value) && typeof value === "object";
+        return CompareUtils.isEvaluable(value) && typeof value === "object";
     }
 
-    static hasChild(value: AnyValue): value is ValueTree {
+    static isTree(value: AnyValue): value is ValueTree {
         return CompareUtils.isArray(value) || CompareUtils.isRecord(value);
     }
 
     static isFunction(value: AnyValue): value is ValueFunction {
-        return CompareUtils.hasValue(value) &&
+        return CompareUtils.isEvaluable(value) &&
             (typeof value === 'function')
             || (value instanceof Function)
             || {}.toString.call(value) === '[object Function]';
@@ -118,7 +117,7 @@ export abstract class CompareUtils {
             return true;
         }
 
-        if (!CompareUtils.hasChild(value)) {
+        if (!CompareUtils.isTree(value)) {
             return path.length > 0;
         }
 
@@ -138,10 +137,10 @@ export abstract class CompareUtils {
             : false;
     }
 
-    static serialize(value: any): ValuePrimitive | NotEvaluable {
+    static flat(value: AnyValue): AnyValue {
         const typeState = new TypeState(value);
 
-        if (!typeState.isValuable) {
+        if (!CompareUtils.isEvaluable(value)) {
             return value === null ? "null" : "undefined";
         }
 
@@ -157,7 +156,7 @@ export abstract class CompareUtils {
             return value.toString();
         }
 
-        const serialize: Record<string | number, AnyValue> = typeState.isArray ?
+        const flat: Record<string | number, AnyValue> = typeState.isArray ?
             [] as Record<number, AnyValue> : {} as ValueRecord;
 
         const items = CompareUtils.isArray(value)
@@ -167,9 +166,18 @@ export abstract class CompareUtils {
         items.forEach((index) => {
             const child = CompareUtils.isNumber(index) ?
                 (value as ValueArray)[index] : (value as ValueRecord)[index];
-            serialize[index] = CompareUtils.serialize(child);
+            flat[index] = CompareUtils.flat(child);
         });
 
-        return JSON.stringify(serialize);
+        return flat;
+    }
+
+    static serialize(value: AnyValue): string {
+        const flat = CompareUtils.flat(value);
+        if (CompareUtils.isString(flat)) {
+            return flat;
+        }
+
+        return JSON.stringify(flat);
     }
 }
