@@ -1,6 +1,7 @@
 import {CompareUtils} from "./compare-utils";
 
 export enum TypeStateEnum {
+    NO_EVALUABLE = "no_evaluable",
     PRIMITIVE = "primitive",
     OBJECT = "object",
     RECORD = "record",
@@ -11,12 +12,12 @@ export enum TypeStateEnum {
 export class TypeState {
     private readonly _type: TypeStateEnum;
 
-    constructor(private _value: any) {
+    constructor(_value: any) {
         if (_value === undefined || _value === null) {
-            this._type = TypeStateEnum.PRIMITIVE;
+            this._type = TypeStateEnum.NO_EVALUABLE;
         } else if (CompareUtils.isArray(_value)) {
             this._type = TypeStateEnum.ARRAY
-        } else if (CompareUtils.isObject(_value)) {
+        } else if (CompareUtils.isRecord(_value)) {
             this._type = _value.constructor.name === "Object"
                 ? TypeStateEnum.RECORD
                 : TypeStateEnum.OBJECT;
@@ -27,12 +28,12 @@ export class TypeState {
         }
     }
 
-    get value(): any | any[] | object {
-        return this._value;
-    }
-
     get type(): TypeStateEnum {
         return this._type;
+    }
+
+    get isValuable() {
+        return this._type !== TypeStateEnum.NO_EVALUABLE;
     }
 
     get isPrimitive() {

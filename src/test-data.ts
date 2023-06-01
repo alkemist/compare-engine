@@ -1,6 +1,35 @@
 import {TypeStateEnum} from "./type-state";
 
 
+const voidFunction: () => void = () => {
+};
+const voidFunctionSerialized = "() => {\n" +
+    "}";
+
+const paramsFunction: (param: string, callback: () => boolean) => boolean
+    = (param: string, callback: () => boolean) => true;
+const paramsFunctionSerialized = "(param, callback) => true";
+
+const classicFunction: () => { param: string }
+    = function () {
+    return {
+        param: "string"
+    }
+}
+const classicFunctionSerialized = "function () {\n" +
+    "    return {\n" +
+    "        param: \"string\"\n" +
+    "    };\n" +
+    "}";
+
+const asyncFunction: () => Promise<number>
+    = async () => {
+    return Promise.resolve(1)
+}
+const asyncFunctionSerialized = "async () => {\n" +
+    "    return Promise.resolve(1);\n" +
+    "}";
+
 class ParentTest {
     static staticVar = 'staticVar'
 
@@ -13,17 +42,17 @@ class ParentTest {
         private propertyTwo = 2,
         private propertyTwoPointOne = 2.1,
         private propertyTrue = true,
-        private voidFunction = () => {
-        },
-        private booleanFunction = () => true,
-        private numberFunction = () => 2,
-        private funcParamFunction = (func: () => {}) => "",
-        private propertyParamFunction = (str: string) => "string",
-        private parentFunction = (param1: string, param2: boolean) => ParentTest,
-        private emptyClassicFunction = function () {
-        },
-        private propertyRecord = {property: "value"},
+        private propertyRecord?: { property: string },
+        private voidFn?: () => void,
+        private paramsFn?: (param: string, callback: () => boolean) => boolean,
+        private classicFn?: () => { param: string },
+        private asyncFn?: () => Promise<number>,
     ) {
+        this.propertyRecord = {property: "value"};
+        this.voidFn = voidFunction;
+        this.paramsFn = paramsFunction;
+        this.classicFn = classicFunction;
+        this.asyncFn = asyncFunction;
     }
 
     static staticFunc() {
@@ -31,72 +60,54 @@ class ParentTest {
     }
 }
 
-const voidFunction = "() => {\n    }"
-const voidFunction2 = "() => {\n        }"
-const booleanFunction = "() => true";
-const numberFunction = "() => 2";
-const funcParamFunction = '(func) => ""';
-const propertyParamFunction = '(str) => "string"';
-const parentFunction = "(param1, param2) => ParentTest";
-const emptyClassicFunction = "function () {\n    }";
-const emptyClassicFunction2 = "function () {\n        }";
-
-const privateObjectTestSerialized = {
-    voidFunction,
-    booleanFunction,
-    numberFunction,
-    funcParamFunction,
-    propertyParamFunction,
-    emptyClassicFunction,
-    parentFunction,
-    propertyOne: 1,
-    propertyTwo: 2,
-    propertyTwoPointOne: 2.1,
-    propertyTrue: true,
-    propertyRecord: {property: "value"},
-}
+const objectFunction = (promiseCallback: () => Promise<boolean>) => ParentTest;
+const objectFunctionSerialized = "(promiseCallback) => ParentTest";
 
 const commonObjectTestSerialized = {
+    propertyOverride: "1",
     propertyUndefined: undefined,
     propertyNull: null,
     propertyZero: 0,
 }
 
+const privateObjectTestSerialized = {
+    propertyOne: 1,
+    propertyTwo: 2,
+    propertyTwoPointOne: 2.1,
+    propertyTrue: true,
+    propertyRecord: {property: "value"},
+    voidFn: voidFunctionSerialized,
+    paramsFn: paramsFunctionSerialized,
+    classicFn: classicFunctionSerialized,
+    asyncFn: asyncFunctionSerialized,
+}
+
 const parentTestSerialized = {
-    propertyOverride: "1",
     ...commonObjectTestSerialized,
     ...privateObjectTestSerialized
 }
 
 const anyArray = [
+    "1",
     undefined,
     null,
     0,
     1,
-    "",
-    "string",
-    [],
-    [{property: "value"}],
+    2,
+    2.1,
+    true,
     {property: "value"},
-    () => {
-    },
-    () => true,
-    () => 2,
-    () => "",
-    () => "string",
-    function () {
-    },
-    new ParentTest("1"),
+    voidFunction,
+    paramsFunction,
+    classicFunction,
+    asyncFunction,
+    objectFunction
 ];
 
 const anyArraySerialized = [
     ...Object.values(commonObjectTestSerialized),
     ...Object.values(privateObjectTestSerialized),
-    [],
-    [{property: "value"}],
-    1,
-    "",
-    "string"
+    objectFunctionSerialized
 ]
 
 class ChildTest extends ParentTest {
@@ -109,13 +120,12 @@ class ChildTest extends ParentTest {
 }
 
 const childTestSerialized = {
-    ...commonObjectTestSerialized,
+    ...parentTestSerialized,
+    propertyOverride: "2",
     propertyObject: {
         ...parentTestSerialized,
         propertyOverride: "x",
-    },
-    propertyOverride: "2",
-    propertyAnyArray: anyArraySerialized
+    }
 }
 
 export const testValues = [
@@ -143,6 +153,36 @@ export const testValues = [
         expectedSerialize: {property: "value"}
     },
     {
+        name: "voidFunction",
+        value: voidFunction,
+        expectedType: TypeStateEnum.FUNCTION,
+        expectedSerialize: voidFunctionSerialized
+    },
+    {
+        name: "paramsFunction",
+        value: paramsFunction,
+        expectedType: TypeStateEnum.FUNCTION,
+        expectedSerialize: paramsFunctionSerialized
+    },
+    {
+        name: "classicFunction",
+        value: classicFunction,
+        expectedType: TypeStateEnum.FUNCTION,
+        expectedSerialize: classicFunctionSerialized
+    },
+    {
+        name: "asyncFunction",
+        value: asyncFunction,
+        expectedType: TypeStateEnum.FUNCTION,
+        expectedSerialize: asyncFunctionSerialized
+    },
+    {
+        name: "objectFunction",
+        value: objectFunction,
+        expectedType: TypeStateEnum.FUNCTION,
+        expectedSerialize: objectFunctionSerialized
+    },
+    {
         name: "object parent",
         value: new ParentTest("1"),
         expectedType: TypeStateEnum.OBJECT,
@@ -153,34 +193,6 @@ export const testValues = [
         value: new ChildTest("2"),
         expectedType: TypeStateEnum.OBJECT,
         expectedSerialize: childTestSerialized
-    },
-    {
-        name: "()=>{}", value: () => {
-        }, expectedType: TypeStateEnum.FUNCTION, expectedSerialize: voidFunction2
-    },
-    {name: "()=>true", value: () => true, expectedType: TypeStateEnum.FUNCTION, expectedSerialize: booleanFunction},
-    {name: "()=>2", value: () => 2, expectedType: TypeStateEnum.FUNCTION, expectedSerialize: numberFunction},
-    {
-        name: "()=>''",
-        value: (func: () => {}) => "",
-        expectedType: TypeStateEnum.FUNCTION,
-        expectedSerialize: funcParamFunction
-    },
-    {
-        name: "()=>'string'",
-        value: (str: string) => "string",
-        expectedType: TypeStateEnum.FUNCTION,
-        expectedSerialize: propertyParamFunction
-    },
-    {
-        name: "(param1: string, param2: boolean)=>ParentTest",
-        value: (param1: string, param2: boolean) => ParentTest,
-        expectedType: TypeStateEnum.FUNCTION,
-        expectedSerialize: parentFunction
-    },
-    {
-        name: "function(){}", value: function () {
-        }, expectedType: TypeStateEnum.FUNCTION, expectedSerialize: emptyClassicFunction2
     },
     {name: "any array", value: anyArray, expectedType: TypeStateEnum.ARRAY, expectedSerialize: anyArraySerialized},
 ] as ValueTest[]

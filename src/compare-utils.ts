@@ -1,37 +1,68 @@
-import {JsonArray, JsonObject, JsonPrimitive, JsonValue} from "./json-value.interface";
+import {
+    AnyValue,
+    Evaluable,
+    NotEvaluable,
+    ValueArray,
+    ValueFunction,
+    ValuePrimitive,
+    ValueRecord,
+    ValueTree
+} from "./value.interface";
 import {TypeState} from "./type-state";
 
 export abstract class CompareUtils {
-    static isNumber(num: JsonPrimitive): num is number {
-        return num !== null && num !== undefined && !isNaN(+num);
+    static hasValue(value: AnyValue): value is Evaluable {
+        return value !== null && value !== undefined;
     }
 
-    static isArray<T>(arr: unknown): arr is T[] {
-        return arr !== null && Array.isArray(arr);
+    static isNumber(value: AnyValue): value is number {
+        return CompareUtils.hasValue(value) && !isNaN(+value);
     }
 
-    static isString(str: unknown): str is string {
-        return str !== null && typeof str === "string";
+    static isArray<T = AnyValue>(value: AnyValue): value is T[] {
+        return CompareUtils.hasValue(value) && Array.isArray(value);
     }
 
-    static isObject(obj: unknown): obj is JsonObject {
-        return obj !== null && typeof obj === "object";
+    static isString(value: AnyValue): value is string {
+        return CompareUtils.hasValue(value) && typeof value === "string";
     }
 
-    static isFunction(func: unknown): func is Function {
-        return (typeof func === 'function')
-            || (func instanceof Function)
-            || {}.toString.call(func) === '[object Function]';
+    static isRecord(value: AnyValue): value is ValueRecord {
+        return CompareUtils.hasValue(value) && typeof value === "object";
     }
 
-    static isPrimitive(value: unknown): value is JsonPrimitive {
-        return !CompareUtils.isObject(value)
+    static hasChild(value: AnyValue): value is ValueTree {
+        return CompareUtils.isArray(value) || CompareUtils.isRecord(value);
+    }
+
+    static isFunction(value: AnyValue): value is ValueFunction {
+        return CompareUtils.hasValue(value) &&
+            (typeof value === 'function')
+            || (value instanceof Function)
+            || {}.toString.call(value) === '[object Function]';
+    }
+
+    static isPrimitive(value: AnyValue): value is ValuePrimitive {
+        return !CompareUtils.isRecord(value)
             && !CompareUtils.isArray(value)
             && !CompareUtils.isFunction(value);
     }
 
-    static isEqual(sideValue: unknown, otherSideValue: unknown): boolean {
-        return Object.is(JSON.stringify(sideValue), JSON.stringify(otherSideValue));
+    static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean {
+        const typeStateSideValue = new TypeState(sideValue);
+        let typeStateOtherSideValue = new TypeState(sideValue);
+
+        const valueCompareState = Object.is(CompareUtils.serialize(sideValue), CompareUtils.serialize(otherSideValue));
+
+        if (valueCompareState) {
+            const typeCompareState = Object.is(typeStateSideValue.type, typeStateOtherSideValue.type);
+            if (typeCompareState && CompareUtils.isRecord(sideValue) && CompareUtils.isRecord(otherSideValue)) {
+                return sideValue.constructor.name === otherSideValue.constructor.name;
+            }
+            return typeCompareState;
+        }
+
+        return valueCompareState;
     }
 
     static deepClone<T, I>(source: T): T {
@@ -61,13 +92,13 @@ export abstract class CompareUtils {
      * @param object
      * @param path
      */
-    static getIn(object: JsonValue, path: string[]): JsonValue {
-        let value: JsonValue | undefined = object
+    static getIn(object: AnyValue, path: string[]): AnyValue {
+        let value: AnyValue | undefined = object
         let i = 0
 
         if (value) {
             while (i < path.length) {
-                if (CompareUtils.isObject(value)) {
+                if (CompareUtils.isRecord(value)) {
                     value = value[path[i]]
                 } else if (CompareUtils.isArray(value)) {
                     value = value[parseInt(path[i])]
@@ -82,33 +113,63 @@ export abstract class CompareUtils {
         return value
     }
 
-    static serialize(value: any): JsonValue {
+    static hasProperty(value: AnyValue, path: string[]): boolean {
+        if (path.length === 0) {
+            return true;
+        }
+
+        if (!CompareUtils.hasChild(value)) {
+            return path.length > 0;
+        }
+
+        const propertyPath = CompareUtils.isArray(value) ? parseInt(path[0]) : path[0];
+
+        if (path.length === 1) {
+            return value.hasOwnProperty(propertyPath);
+        } else if (!value.hasOwnProperty(propertyPath)) {
+            return false;
+        }
+
+        const subValue = CompareUtils.isNumber(propertyPath) ?
+            (value as ValueArray)[propertyPath] : (value as ValueRecord)[propertyPath];
+
+        return CompareUtils.isRecord(subValue) || CompareUtils.isArray(subValue)
+            ? CompareUtils.hasProperty(subValue, path.slice(1))
+            : false;
+    }
+
+    static serialize(value: any): ValuePrimitive | NotEvaluable {
         const typeState = new TypeState(value);
 
-        console.log("--- value", value);
-        console.log("--- type", typeState.type);
+        if (!typeState.isValuable) {
+            return value === null ? "null" : "undefined";
+        }
 
         if (typeState.isPrimitive) {
-            return value;
-        } else if (typeState.isFunction) {
+            if (CompareUtils.isString(value)) {
+                return `"${value}"`;
+            }
+
             return value.toString();
         }
 
-        const serialize: Record<string | number, JsonValue> = typeState.isArray ?
-            [] as Record<number, JsonValue> : {} as JsonObject;
+        if (typeState.isFunction) {
+            return value.toString();
+        }
+
+        const serialize: Record<string | number, AnyValue> = typeState.isArray ?
+            [] as Record<number, AnyValue> : {} as ValueRecord;
 
         const items = CompareUtils.isArray(value)
             ? value.map((_, index) => index)
             : Object.keys(value);
 
-        console.log("--- items", items);
-
         items.forEach((index) => {
             const child = CompareUtils.isNumber(index) ?
-                (value as JsonArray)[index] : (value as JsonObject)[index];
+                (value as ValueArray)[index] : (value as ValueRecord)[index];
             serialize[index] = CompareUtils.serialize(child);
         });
 
-        return serialize;
+        return JSON.stringify(serialize);
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@alkemist/compare-engine",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Json comparison engine",
   "main": "./index.js",
   "types": "./index.d.ts",
