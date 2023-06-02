@@ -1,6 +1,6 @@
 import {describe, expect, it} from "@jest/globals";
-import {testValues} from "./test-data";
-import {CompareUtils} from "./compare-utils";
+import {testValues} from "../src/test-data";
+import {CompareUtils} from "../src/compare-utils";
 
 describe("CompareUtils", () => {
     describe("serialize", () => {

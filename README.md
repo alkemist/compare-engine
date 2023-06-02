@@ -21,7 +21,7 @@ Compares 2 value, considering array object movement :
 
 ## Examples
 
-### JSON
+### With JSON
 
     import {CompareEngine} from '@alkemist/compare-engine';
 
@@ -115,7 +115,7 @@ Compares 2 value, considering array object movement :
     compareEngine.getLeftState("objectArray/2") // return EQUAL CompareState
     compareEngine.getLeftState("objectArray/2/id") // return NONE CompareState
 
-### Classes
+### With Objects
 
     class Parent {
         constructor(protected property = "value") {
@@ -127,6 +127,24 @@ Compares 2 value, considering array object movement :
             super();
         }
     }
+
+    const compareEngine = new CompareEngine((paths: string[]) => {
+      return "id";
+    }, new Parent(), new Parent());
+    compareEngine.updateCompareIndex();
+    compareEngine.getLeftState("") // return EQUAL CompareState
+
+    const compareEngine = new CompareEngine((paths: string[]) => {
+      return "id";
+    }, new Parent(), new Child());
+    compareEngine.updateCompareIndex();
+    compareEngine.getLeftState("") // return UPDATED CompareState
+
+    const compareEngine = new CompareEngine((paths: string[]) => {
+      return "id";
+    }, new Child(), new Child("otherValue"));
+    compareEngine.updateCompareIndex();
+    compareEngine.getLeftState("") // return UPDATED CompareState
 
 ## Exposed models, enums and utils
 

@@ -1,6 +1,6 @@
 import {describe, expect, it} from "@jest/globals";
-import {TypeState} from "./type-state";
-import {testValues} from "./test-data";
+import {TypeState} from "../src/type-state";
+import {testValues} from "../src/test-data";
 
 describe("TypeState", () => {
     it.each(testValues)(

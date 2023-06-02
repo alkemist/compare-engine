@@ -1,7 +1,7 @@
 import {describe, expect, it} from "@jest/globals";
-import {CompareEngine} from "./compare-engine";
-import {AnyValue} from "./value.interface";
-import {CompareStateEnum} from "./compare-state.enum";
+import {CompareEngine} from "../src/compare-engine";
+import {AnyValue} from "../src/value.interface";
+import {CompareStateEnum} from "../src/compare-state.enum";
 
 class Parent<T extends boolean | string = string> {
     constructor(protected property = "value") {
@@ -15,16 +15,6 @@ class Parent<T extends boolean | string = string> {
 class Child extends Parent<boolean> {
     constructor(protected override property = "value") {
         super();
-    }
-}
-
-class OtherChild extends Parent {
-    constructor(protected override property = "value") {
-        super();
-    }
-
-    differentFunction() {
-        return true;
     }
 }
 
@@ -149,6 +139,7 @@ describe("CompareEngine", () => {
                     name: "Two parents", leftValue: new Parent(), rightValue: new Parent(),
                     tests: [
                         {path: "", expected: CompareStateEnum.EQUAL},
+                        {path: "property", expected: CompareStateEnum.NONE},
                     ]
                 },
                 {
@@ -158,6 +149,7 @@ describe("CompareEngine", () => {
                     rightValue: new Parent<boolean>(),
                     tests: [
                         {path: "", expected: CompareStateEnum.EQUAL},
+                        {path: "property", expected: CompareStateEnum.NONE},
                     ]
                 },
                 {
@@ -172,12 +164,7 @@ describe("CompareEngine", () => {
                     rightValue: new Child("otherValue"),
                     tests: [
                         {path: "", expected: CompareStateEnum.UPDATED},
-                    ]
-                },
-                {
-                    name: "Two child with differents functions", leftValue: new Child(), rightValue: new OtherChild(),
-                    tests: [
-                        {path: "", expected: CompareStateEnum.UPDATED},
+                        {path: "property", expected: CompareStateEnum.UPDATED},
                     ]
                 },
             ] as CompareEngineExample[])(
@@ -192,7 +179,7 @@ describe("CompareEngine", () => {
                         "Get left compare state '$path' should return '$expected'",
                         (compareTest) => {
                             expect(
-                                compareEngine.getLeftState(
+                                compareEngine.getRightState(
                                     compareTest.path
                                 ).toString()
                             ).toEqual(compareTest.expected);

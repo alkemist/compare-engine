@@ -117,6 +117,11 @@ class ChildTest extends ParentTest {
     ) {
         super(propertyOverride);
     }
+
+    // @TODO To improve with definition functions
+    definitionFunction() {
+        return true;
+    }
 }
 
 const childTestSerialized = {
@@ -125,7 +130,7 @@ const childTestSerialized = {
     propertyObject: {
         ...parentTestSerialized,
         propertyOverride: '"x"',
-    }
+    },
 }
 
 export const testValues = [
