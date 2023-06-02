@@ -7,11 +7,5 @@
       "jest"
     ],
     "esModuleInterop": true
-  },
-  "files": [
-  ],
-  "include": [
-  ],
-  "exclude": [
-  ]
+  }
 }

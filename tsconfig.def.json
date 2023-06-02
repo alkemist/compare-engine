@@ -1,0 +1,13 @@
+// Generate one index.d.ts(.map)
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "sourceMap": true,
+    "sourceRoot": "src",
+    //"outFile": "./lib/index.ts"
+    "declarationDir": "./lib"
+  }
+}
