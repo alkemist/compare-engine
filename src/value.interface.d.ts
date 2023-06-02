@@ -1,7 +1,12 @@
-export type JsonPrimitive = string | number | boolean | null;
-export type JsonObject = {
-    [key: string]: JsonValue;
+export type NotEvaluable = null | undefined;
+export type ValuePrimitive = string | number | boolean;
+export type ValueFunction = Function;
+export type ValueArray = AnyValue[];
+export type ValueObject = object;
+export type ValueRecord = {
+    [key: string]: AnyValue;
 };
-export type JsonArray = JsonValue[];
-export type JsonValue = JsonObject | JsonArray | JsonPrimitive;
-//# sourceMappingURL=json-value.interface.d.ts.map
+export type ValueTree = ValueArray | ValueObject | ValueRecord;
+export type Evaluable = ValuePrimitive | ValueFunction | ValueTree;
+export type AnyValue = Evaluable | NotEvaluable;
+//# sourceMappingURL=value.interface.d.ts.map

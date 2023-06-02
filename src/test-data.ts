@@ -64,18 +64,18 @@ const objectFunction = (promiseCallback: () => Promise<boolean>) => ParentTest;
 const objectFunctionSerialized = "(promiseCallback) => ParentTest";
 
 const commonObjectTestSerialized = {
-    propertyOverride: "1",
-    propertyUndefined: undefined,
-    propertyNull: null,
-    propertyZero: 0,
+    propertyOverride: '"1"',
+    propertyUndefined: "undefined",
+    propertyNull: "null",
+    propertyZero: "0",
 }
 
 const privateObjectTestSerialized = {
-    propertyOne: 1,
-    propertyTwo: 2,
-    propertyTwoPointOne: 2.1,
-    propertyTrue: true,
-    propertyRecord: {property: "value"},
+    propertyOne: "1",
+    propertyTwo: "2",
+    propertyTwoPointOne: "2.1",
+    propertyTrue: "true",
+    propertyRecord: {"property": '"value"'},
     voidFn: voidFunctionSerialized,
     paramsFn: paramsFunctionSerialized,
     classicFn: classicFunctionSerialized,
@@ -88,15 +88,15 @@ const parentTestSerialized = {
 }
 
 const anyArray = [
-    '"1"',
-    "undefined",
-    "null",
-    "0",
     "1",
-    "2",
-    "2.1",
-    "true",
-    '{property: ""value""}',
+    undefined,
+    null,
+    0,
+    1,
+    2,
+    2.1,
+    true,
+    {property: "value"},
     voidFunction,
     paramsFunction,
     classicFunction,
@@ -121,10 +121,10 @@ class ChildTest extends ParentTest {
 
 const childTestSerialized = {
     ...parentTestSerialized,
-    propertyOverride: "2",
+    propertyOverride: '"2"',
     propertyObject: {
         ...parentTestSerialized,
-        propertyOverride: "x",
+        propertyOverride: '"x"',
     }
 }
 
@@ -186,15 +186,20 @@ export const testValues = [
         name: "object parent",
         value: new ParentTest("1"),
         expectedType: TypeStateEnum.OBJECT,
-        expectedSerialize: parentTestSerialized
+        expectedSerialize: JSON.stringify(parentTestSerialized)
     },
     {
         name: "object child",
         value: new ChildTest("2"),
         expectedType: TypeStateEnum.OBJECT,
-        expectedSerialize: childTestSerialized
+        expectedSerialize: JSON.stringify(childTestSerialized)
     },
-    {name: "any array", value: anyArray, expectedType: TypeStateEnum.ARRAY, expectedSerialize: anyArraySerialized},
+    {
+        name: "any array",
+        value: anyArray,
+        expectedType: TypeStateEnum.ARRAY,
+        expectedSerialize: JSON.stringify(anyArraySerialized)
+    },
 ] as ValueTest[]
 
 export interface ValueTest {

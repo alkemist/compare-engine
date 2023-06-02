@@ -160,12 +160,13 @@ export abstract class CompareUtils {
             [] as Record<number, AnyValue> : {} as ValueRecord;
 
         const items = CompareUtils.isArray(value)
-            ? value.map((_, index) => index)
+            ? value.map((_, index) => index.toString())
             : Object.keys(value);
 
         items.forEach((index) => {
-            const child = CompareUtils.isNumber(index) ?
-                (value as ValueArray)[index] : (value as ValueRecord)[index];
+            const child = CompareUtils.isArray(value) ?
+                value[parseInt(index, 10)] : (value as ValueRecord)[index];
+
             flat[index] = CompareUtils.flat(child);
         });
 
