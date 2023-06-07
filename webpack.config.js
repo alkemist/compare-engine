@@ -7,13 +7,13 @@ module.exports = {
     entry: "./src/index.ts",
     output: {
         path: __dirname + "/lib",
-        filename: 'index.ts',
+        filename: 'index.js',
     },
     plugins: [],
     optimization: {
         minimize: true,
         minimizer: [new TerserPlugin({
-            test: /\.ts(\?.*)?$/i,
+            test: /\.js(\?.*)?$/i,
             parallel: true,
             terserOptions: {},
         })],

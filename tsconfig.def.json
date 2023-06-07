@@ -7,7 +7,6 @@
     "emitDeclarationOnly": true,
     "sourceMap": true,
     "sourceRoot": "src",
-    //"outFile": "./lib/index.ts"
     "declarationDir": "./lib"
   }
 }

@@ -5,5 +5,4 @@ export declare enum CompareStateEnum {
     REMOVED = "removed",
     EQUAL = "equal"
 }
-
 //# sourceMappingURL=compare-state.enum.d.ts.map

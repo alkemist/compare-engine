@@ -1,9 +1,10 @@
 {
   "name": "@alkemist/compare-engine",
-  "version": "1.1.7",
+  "version": "1.1.10",
   "description": "Comparison engine",
-  "main": "lib/index.ts",
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "module": "lib/index.js",
   "private": false,
   "scripts": {
     "tsc": "rm -f lib/* && tsc --project tsconfig.def.json",
@@ -14,7 +15,14 @@
     "lib/*"
   ],
   "exports": {
-    ".": "./lib/index.ts"
+    ".": [
+      {
+        "types": "./lib/types/index.d.ts",
+        "import": "./lib/index.js"
+      },
+      "./lib/index.js"
+    ],
+    "./package.json": "./package.json"
   },
   "repository": {
     "type": "git",
@@ -22,6 +30,9 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "keywords": [
     "typescript",
