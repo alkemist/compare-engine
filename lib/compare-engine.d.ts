@@ -1,8 +1,8 @@
-import {CompareState} from "./compare-state";
-import {PanelEnum} from "./panel.enum";
-import {AnyValue, ValueRecord} from "./value.interface";
-import {FindedItemInterface} from "./finded-item.interface";
-import {Path} from "./path";
+import {CompareState} from "./compare-state.js";
+import {PanelEnum} from "./panel.enum.js";
+import {AnyValue, ValueRecord} from "./value.interface.js";
+import {FindedItemInterface} from "./finded-item.interface.js";
+import {Path} from "./path.js";
 
 export declare class CompareEngine {
     protected determineArrayIndexFn?: ((paths: string[]) => string) | undefined;

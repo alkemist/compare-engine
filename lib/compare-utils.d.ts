@@ -1,4 +1,4 @@
-import {AnyValue, Evaluable, ValueFunction, ValuePrimitive, ValueRecord, ValueTree} from "./value.interface";
+import {AnyValue, Evaluable, ValueFunction, ValuePrimitive, ValueRecord, ValueTree} from "./value.interface.js";
 
 export declare abstract class CompareUtils {
     static isEvaluable(value: AnyValue): value is Evaluable;

@@ -6,8 +6,8 @@ import {
     ValuePrimitive,
     ValueRecord,
     ValueTree
-} from "./value.interface";
-import {TypeState} from "./type-state";
+} from "./value.interface.js";
+import {TypeState} from "./type-state.js";
 
 export abstract class CompareUtils {
     static isEvaluable(value: AnyValue): value is Evaluable {

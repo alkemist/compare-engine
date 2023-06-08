@@ -1,4 +1,4 @@
-import {CompareUtils} from "./compare-utils";
+import {CompareUtils} from "./compare-utils.js";
 
 export enum TypeStateEnum {
     NO_EVALUABLE = "no_evaluable",

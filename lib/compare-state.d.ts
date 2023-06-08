@@ -1,4 +1,4 @@
-import {CompareStateEnum} from "./compare-state.enum";
+import {CompareStateEnum} from "./compare-state.enum.js";
 
 export declare class CompareState {
     protected constructor(_value?: CompareStateEnum);

@@ -1,4 +1,4 @@
-import {AnyValue} from "./value.interface";
+import {AnyValue} from "./value.interface.js";
 
 export interface FindedItemInterface {
     index: number,

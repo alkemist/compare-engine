@@ -1,29 +1,22 @@
 {
   "name": "@alkemist/compare-engine",
-  "version": "1.1.10",
+  "version": "1.1.17",
   "description": "Comparison engine",
-  "main": "lib/index.js",
+  "main": "lib/index.min.mjs",
+  "type": "module",
   "types": "lib/index.d.ts",
-  "module": "lib/index.js",
+  "module": "lib/index.min.mjs",
+  "exports": "./lib/index.min.mjs",
   "private": false,
   "scripts": {
-    "tsc": "rm -f lib/* && tsc --project tsconfig.def.json",
-    "prepublishOnly": "npm run tsc && webpack",
+    "dist": "rm -f dist/* && tsc --project tsconfig.dist.json",
+    "def": "rm -f lib/* && tsc --project tsconfig.def.json",
+    "prepublishOnly": "npm run dist && npm run def && webpack",
     "test": "jest"
   },
   "files": [
     "lib/*"
   ],
-  "exports": {
-    ".": [
-      {
-        "types": "./lib/types/index.d.ts",
-        "import": "./lib/index.js"
-      },
-      "./lib/index.js"
-    ],
-    "./package.json": "./package.json"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alkemist/compare-engine.git"
