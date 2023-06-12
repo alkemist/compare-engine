@@ -31,12 +31,28 @@ export class CompareEngine {
         };
     }
 
+    get leftValue() {
+        return CompareUtils.deepClone(this.panels[PanelEnum.LEFT]);
+    }
+
+    get rightValue() {
+        return CompareUtils.deepClone(this.panels[PanelEnum.RIGHT]);
+    }
+
     updateLeft(value: AnyValue) {
         this.update(PanelEnum.LEFT, value);
     }
 
     updateRight(value: AnyValue) {
         this.update(PanelEnum.RIGHT, value);
+    }
+
+    leftToRight() {
+        this.updateRight(this.panels[PanelEnum.LEFT]);
+    }
+
+    rightToLeft() {
+        this.updateLeft(this.panels[PanelEnum.RIGHT]);
     }
 
     updateCompareIndex(): void {
@@ -66,7 +82,7 @@ export class CompareEngine {
     }
 
     protected update(panel: PanelEnum, value: AnyValue): void {
-        this.panels[panel] = value;
+        this.panels[panel] = CompareUtils.deepClone(value);
         this.arrayIndex[panel].clear();
     }
 

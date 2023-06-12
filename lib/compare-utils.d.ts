@@ -1,6 +1,8 @@
 import {AnyValue, Evaluable, ValueFunction, ValuePrimitive, ValueRecord, ValueTree} from "./value.interface.js";
 
 export declare abstract class CompareUtils {
+    private static flat;
+
     static isEvaluable(value: AnyValue): value is Evaluable;
 
     static isNumber(value: AnyValue): value is number;
@@ -24,8 +26,6 @@ export declare abstract class CompareUtils {
     static getIn(object: AnyValue, path: string[]): AnyValue;
 
     static hasProperty(value: AnyValue, path: string[]): boolean;
-
-    static flat(value: AnyValue): AnyValue;
 
     static serialize(value: AnyValue): string;
 }

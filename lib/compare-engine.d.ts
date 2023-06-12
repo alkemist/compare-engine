@@ -12,9 +12,17 @@ export declare class CompareEngine {
 
     constructor(determineArrayIndexFn?: ((paths: string[]) => string) | undefined, leftValue?: AnyValue, rightValue?: AnyValue);
 
+    get leftValue(): AnyValue;
+
+    get rightValue(): AnyValue;
+
     updateLeft(value: AnyValue): void;
 
     updateRight(value: AnyValue): void;
+
+    leftToRight(): void;
+
+    rightToLeft(): void;
 
     updateCompareIndex(): void;
 

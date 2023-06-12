@@ -137,7 +137,16 @@ export abstract class CompareUtils {
             : false;
     }
 
-    static flat(value: AnyValue): AnyValue {
+    static serialize(value: AnyValue): string {
+        const flat = CompareUtils.flat(value);
+        if (CompareUtils.isString(flat)) {
+            return flat;
+        }
+
+        return JSON.stringify(flat);
+    }
+
+    private static flat(value: AnyValue): AnyValue {
         const typeState = new TypeState(value);
 
         if (!CompareUtils.isEvaluable(value)) {
@@ -171,14 +180,5 @@ export abstract class CompareUtils {
         });
 
         return flat;
-    }
-
-    static serialize(value: AnyValue): string {
-        const flat = CompareUtils.flat(value);
-        if (CompareUtils.isString(flat)) {
-            return flat;
-        }
-
-        return JSON.stringify(flat);
     }
 }
