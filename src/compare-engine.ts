@@ -125,7 +125,9 @@ export class CompareEngine {
     ): FindedItemInterface {
         let itemIndex;
 
-        if (searchKey && CompareUtils.isRecord(sideValue) && CompareUtils.hasProperty(sideValue, [searchKey])) {
+        if (searchKey && CompareUtils.hasProperty(sideValue, [searchKey]) &&
+            CompareUtils.hasStringIndex(sideValue)
+        ) {
             itemIndex = otherSideItems
                 .findIndex((item) => item[searchKey] === sideValue[searchKey]);
         } else {
@@ -184,7 +186,6 @@ export class CompareEngine {
 
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
 
-
         if (!CompareUtils.isPrimitive(sideValue)) {
             this.arrayIndex[panel].set(path.toString(), CompareUtils.isArray(sideValue));
         }
@@ -238,7 +239,6 @@ export class CompareEngine {
 
                         const sideObject = CompareUtils.getIn(currentRoot, objectPath) as AnyValue;
 
-                        //if (sideObject) {
                         const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
                         const otherSideObject = itemFinded.value;
 

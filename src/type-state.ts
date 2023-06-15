@@ -18,9 +18,9 @@ export class TypeState {
         } else if (CompareUtils.isArray(_value)) {
             this._type = TypeStateEnum.ARRAY
         } else if (CompareUtils.isRecord(_value)) {
-            this._type = _value.constructor.name === "Object"
-                ? TypeStateEnum.RECORD
-                : TypeStateEnum.OBJECT;
+            this._type = TypeStateEnum.RECORD;
+        } else if (CompareUtils.isObject(_value)) {
+            this._type = TypeStateEnum.OBJECT;
         } else if (CompareUtils.isFunction(_value)) {
             this._type = TypeStateEnum.FUNCTION
         } else {
