@@ -12,6 +12,9 @@ export declare class CompareEngine {
 
     constructor(determineArrayIndexFn?: ((paths: string[]) => string) | undefined, leftValue?: AnyValue, rightValue?: AnyValue);
 
+    private _logEnabled;
+    set logEnabled(logEnabled: boolean);
+
     get leftValue(): AnyValue;
 
     get rightValue(): AnyValue;
@@ -36,15 +39,15 @@ export declare class CompareEngine {
 
     protected update(panel: PanelEnum, value: AnyValue): void;
 
-    protected findArrayDiffLevels(panel: PanelEnum, path: Path, level?: number, diffs?: number[]): number[];
+    protected findArrayDiffLevels(panel: PanelEnum, path: Path, level?: number, diffs?: number[], logEnabled?: boolean): number[];
 
     protected findCompareItem(sideValue: AnyValue, otherSideItems: ValueRecord[], searchKey: string): FindedItemInterface;
 
-    protected comparePropertyValues(panel: PanelEnum, sideValue: AnyValue, otherSideObject: AnyValue, propertyPath: Path, showLog?: boolean): CompareState;
+    protected comparePropertyValues(panel: PanelEnum, sideValue: AnyValue, otherSideObject: AnyValue, propertyPath: Path, logEnabled?: boolean): CompareState;
 
     protected getIncomparableState(panel: PanelEnum): CompareState;
 
-    protected compareValues(panel: PanelEnum, sideValue: AnyValue, otherSideValue: AnyValue): CompareState;
+    protected compareValues(sideValue: AnyValue, otherSideValue: AnyValue): CompareState;
 
     protected compare(panel: PanelEnum, sideValue: AnyValue | undefined, path?: Path): void;
 }

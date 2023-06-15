@@ -31,6 +31,12 @@ export class CompareEngine {
         };
     }
 
+    private _logEnabled = false;
+
+    set logEnabled(logEnabled: boolean) {
+        this._logEnabled = logEnabled;
+    }
+
     get leftValue() {
         return CompareUtils.deepClone(this.panels[PanelEnum.LEFT]);
     }
@@ -87,10 +93,14 @@ export class CompareEngine {
     }
 
     // We retrieve the level difference between each array
-    protected findArrayDiffLevels(panel: PanelEnum, path: Path, level = 1, diffs: number[] = []): number[] {
+    protected findArrayDiffLevels(panel: PanelEnum, path: Path, level = 0, diffs: number[] = [], logEnabled = false): number[] {
         const currentPath = path.slice(0, level);
         const isArray = this.arrayIndex[panel].get(currentPath.toString()) ?? false;
 
+        if (logEnabled) {
+            console.log("--- findArrayDiffLevels : level ", level, " with path ", path.toString())
+            console.log("--- findArrayDiffLevels : currentPath ", currentPath.toString(), " is array ? ", isArray)
+        }
 
         // We increment the previous level differences
         if (diffs.length > 0) {
@@ -102,7 +112,7 @@ export class CompareEngine {
         }
 
         if (level < path.length) {
-            return this.findArrayDiffLevels(panel, path, level + 1, diffs);
+            return this.findArrayDiffLevels(panel, path, level + 1, diffs, logEnabled);
         }
 
         return diffs;
@@ -134,9 +144,9 @@ export class CompareEngine {
         sideValue: AnyValue,
         otherSideObject: AnyValue,
         propertyPath: Path,
-        showLog = false,
+        logEnabled = false,
     ): CompareState {
-        if (showLog) {
+        if (logEnabled) {
             console.log('--- Compare property value', propertyPath, CompareUtils.hasProperty(otherSideObject, propertyPath) ? "exist" : "not exist");
             console.log('--- in object', otherSideObject)
         }
@@ -147,7 +157,7 @@ export class CompareEngine {
 
         const currentOtherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
 
-        if (showLog) {
+        if (logEnabled) {
             console.log('--- Is equal ?', CompareUtils.isEqual(sideValue, currentOtherSideValue));
             console.log('--- Other side value', currentOtherSideValue);
         }
@@ -161,7 +171,7 @@ export class CompareEngine {
         return panel === PanelEnum.LEFT ? CompareState.REMOVED : CompareState.ADDED;
     }
 
-    protected compareValues(panel: PanelEnum, sideValue: AnyValue, otherSideValue: AnyValue): CompareState {
+    protected compareValues(sideValue: AnyValue, otherSideValue: AnyValue): CompareState {
         return CompareUtils.isEqual(sideValue, otherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
@@ -169,8 +179,8 @@ export class CompareEngine {
 
     protected compare(panel: PanelEnum, sideValue: AnyValue | undefined, path: Path = new Path())
         : void {
-        let showLog = false;
-        let otherSideValue: AnyValue, compareState = CompareState.NONE;
+        let otherSideValue: AnyValue, logEnabled = this._logEnabled;
+        let compareState = CompareState.NONE;
 
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
 
@@ -179,11 +189,14 @@ export class CompareEngine {
             this.arrayIndex[panel].set(path.toString(), CompareUtils.isArray(sideValue));
         }
 
-        const arrayDiffLevels = this.findArrayDiffLevels(panel, path);
-
-        if (showLog) {
+        if (logEnabled) {
             console.log(`- [${panel}] ${path.toString()}`)
             console.log('-- Side value : ', sideValue);
+        }
+
+        const arrayDiffLevels = this.findArrayDiffLevels(panel, path, 0, [], logEnabled);
+
+        if (logEnabled) {
             console.log('-- Array diffs : ', arrayDiffLevels);
         }
 
@@ -197,7 +210,7 @@ export class CompareEngine {
                 const arrayPath = currentPath.slice(0, currentPath.length - arrayDiffLevel);
                 const otherSideItems = CompareUtils.getIn(currentOtherRoot, arrayPath);
 
-                if (showLog) {
+                if (logEnabled) {
                     console.log('--- Current array diff : ', arrayDiffLevel)
                     console.log('--- Current root : ', currentRoot)
                     console.log('--- Current side value : ', currentSideValue)
@@ -210,7 +223,7 @@ export class CompareEngine {
                     if (arrayDiffLevel === 0) {
                         currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
 
-                        if (showLog) {
+                        if (logEnabled) {
                             console.log('-- Array diff 0');
                             console.log('-- Property path : ', arrayPath);
                             console.log('-- Compare : ', currentSideValue);
@@ -218,7 +231,7 @@ export class CompareEngine {
                         }
 
                         compareState = this.comparePropertyValues(panel,
-                            currentSideValue, currentOtherRoot, arrayPath, showLog)
+                            currentSideValue, currentOtherRoot, arrayPath, logEnabled)
                     } else {
                         const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
                         const objectPath = currentPath.slice(0, arrayPath.length + 1);
@@ -235,20 +248,22 @@ export class CompareEngine {
                             if (arrayDiffLevel === 1) {
                                 const index = parseInt([...currentPath].pop() as string, 10);
                                 currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
-                                if (showLog) {
+                                if (logEnabled) {
                                     console.log('-- Array diff 1', propertyPath);
                                     console.log('-- Other side value : ', itemFinded.value);
                                 }
 
-                                const compareIndex = this.compareValues(panel, index, itemFinded.index);
-                                const compareValue = this.compareValues(panel, currentSideValue, itemFinded.value);
+                                const compareIndex = this.compareValues(index, itemFinded.index);
+                                const compareValue = this.compareValues(currentSideValue, itemFinded.value);
 
                                 compareState = compareIndex.isUpdated || compareValue.isUpdated
                                     ? CompareState.UPDATED : CompareState.EQUAL;
                             } else {
                                 currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
-                                otherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
-                                if (showLog) {
+
+                                if (logEnabled) {
+                                    otherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
+
                                     console.log('-- Array diff > 1', propertyPath);
                                     console.log('-- Other side object : ', otherSideObject);
                                     console.log('-- Other side value : ', otherSideValue);
@@ -259,7 +274,7 @@ export class CompareEngine {
                                     currentSideValue,
                                     otherSideObject,
                                     propertyPath,
-                                    showLog
+                                    logEnabled
                                 );
                             }
 
@@ -267,7 +282,10 @@ export class CompareEngine {
                             currentRoot = CompareUtils.deepClone(sideObject);
                             currentSideValue = CompareUtils.deepClone(sideObject);
                             currentOtherRoot = CompareUtils.deepClone(otherSideObject);
-                            otherSideValue = CompareUtils.deepClone(otherSideObject);
+
+                            if (logEnabled) {
+                                otherSideValue = CompareUtils.deepClone(otherSideObject);
+                            }
                         } else {
                             compareState = this.getIncomparableState(panel);
                         }
@@ -275,19 +293,17 @@ export class CompareEngine {
                 } else {
                     currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
 
-                    if (showLog) {
+                    if (logEnabled) {
                         console.log('-- No other side array')
                         console.log('-- Compare', currentSideValue)
                         console.log('-- With', otherSideItems)
                     }
 
                     compareState = this.comparePropertyValues(panel,
-                        currentSideValue, currentOtherRoot, arrayPath, showLog)
+                        currentSideValue, currentOtherRoot, arrayPath, logEnabled)
                 }
             });
         } else {
-            otherSideValue = CompareUtils.getIn(this.panels[otherPanel], path);
-
             compareState = this.comparePropertyValues(
                 panel,
                 currentSideValue,
@@ -295,13 +311,14 @@ export class CompareEngine {
                 path
             );
 
-            if (showLog) {
+            if (logEnabled) {
+                otherSideValue = CompareUtils.getIn(this.panels[otherPanel], path);
                 console.log('-- No array upside');
                 console.log('-- Other side value : ', otherSideValue);
             }
         }
 
-        if (showLog) {
+        if (logEnabled) {
             console.log('-- Update state with : ', compareState);
         }
         this.compareStateIndex[panel].set(path.toString(), compareState);

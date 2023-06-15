@@ -1,6 +1,5 @@
 import {describe, expect, it} from "@jest/globals";
-import {CompareEngine} from "../src/compare-engine";
-import {AnyValue} from "../src/value.interface";
+import {AnyValue, CompareEngine} from "../src";
 import {CompareStateEnum} from "../src/compare-state.enum";
 
 class Parent<T extends boolean | string = string> {
@@ -176,7 +175,7 @@ describe("CompareEngine", () => {
                     compareEngine.updateCompareIndex();
 
                     it.each(compareExample.tests)(
-                        "Get left compare state '$path' should return '$expected'",
+                        "Get right compare state '$path' should return '$expected'",
                         (compareTest) => {
                             expect(
                                 compareEngine.getRightState(
@@ -186,6 +185,69 @@ describe("CompareEngine", () => {
                         }
                     );
                 });
+        })
+
+        describe("Compare two arrays", () => {
+            const compareEngine = new CompareEngine();
+            compareEngine.updateLeft([
+                {
+                    id: 0,
+                    label: "0"
+                },
+                {
+                    id: 1,
+                    label: "1"
+                }
+            ])
+            compareEngine.updateRight([
+                {
+                    id: 1,
+                    label: "1"
+                },
+                {
+                    id: 0,
+                    label: "0"
+                },
+            ])
+            compareEngine.updateCompareIndex();
+
+            it.each([
+                {path: "", expected: CompareStateEnum.UPDATED},
+                {path: "0", expected: CompareStateEnum.UPDATED},
+                {path: "0/id", expected: CompareStateEnum.EQUAL},
+                {path: "0/label", expected: CompareStateEnum.EQUAL},
+                {path: "1", expected: CompareStateEnum.UPDATED},
+                {path: "1/id", expected: CompareStateEnum.EQUAL},
+                {path: "1/label", expected: CompareStateEnum.EQUAL},
+            ])(
+                "Get left compare state '$path' should return '$expected'",
+                (compareTest) => {
+                    expect(
+                        compareEngine.getLeftState(
+                            compareTest.path
+                        ).toString()
+                    ).toEqual(compareTest.expected);
+                }
+            );
+
+            it.each([
+                {path: "", expected: CompareStateEnum.UPDATED},
+                {path: "0", expected: CompareStateEnum.UPDATED},
+                {path: "0/id", expected: CompareStateEnum.EQUAL},
+                {path: "0/label", expected: CompareStateEnum.EQUAL},
+                {path: "1", expected: CompareStateEnum.UPDATED},
+                {path: "1/id", expected: CompareStateEnum.EQUAL},
+                {path: "1/label", expected: CompareStateEnum.EQUAL},
+            ])(
+                "Get right compare state '$path' should return '$expected'",
+                (compareTest) => {
+                    expect(
+                        compareEngine.getRightState(
+                            compareTest.path
+                        ).toString()
+                    ).toEqual(compareTest.expected);
+                }
+            );
         })
     })
 

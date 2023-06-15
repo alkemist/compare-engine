@@ -1,5 +1,5 @@
 import {describe, expect, it} from "@jest/globals";
-import {TypeState} from "../src/type-state";
+import {TypeState} from "../src";
 import {testValues} from "./test-data";
 
 describe("TypeState", () => {
