@@ -1,19 +1,39 @@
-import {AnyValue, Evaluable, ValueFunction, ValuePrimitive, ValueRecord, ValueTree} from "./value.interface.js";
+import {
+    AnyValue,
+    Evaluable,
+    GenericValueArray,
+    GenericValueRecord,
+    GenericValueTree,
+    ValueFunction,
+    ValueKey,
+    ValuePrimitive,
+    ValueTree
+} from "./value.interface.js";
 
 export declare abstract class CompareUtils {
     private static flat;
 
     static isEvaluable(value: AnyValue): value is Evaluable;
 
+    static isBoolean(value: AnyValue): value is boolean;
+
+    static isKey(value: AnyValue): value is ValueKey;
+
     static isNumber(value: AnyValue): value is number;
 
-    static isArray<T = AnyValue>(value: AnyValue): value is T[];
+    static isSymbol(value: AnyValue): value is symbol;
 
     static isString(value: AnyValue): value is string;
 
-    static isRecord(value: AnyValue): value is ValueRecord;
+    static isArray<T = AnyValue>(value: AnyValue): value is GenericValueArray<T>;
 
-    static isTree(value: AnyValue): value is ValueTree;
+    static isRecord<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>;
+
+    static isObject<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>;
+
+    static hasStringIndex<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>;
+
+    static isTree<T = AnyValue>(value: AnyValue): value is GenericValueTree<T>;
 
     static isFunction(value: AnyValue): value is ValueFunction;
 
@@ -21,13 +41,21 @@ export declare abstract class CompareUtils {
 
     static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean;
 
-    static deepClone<T, I>(source: T): T;
+    static keys<T extends ValueTree, R extends ValueKey = T extends GenericValueArray ? string : number>(tree: T): R[];
 
-    static getIn(object: AnyValue, path: string[]): AnyValue;
+    static deepClone<T extends AnyValue>(source: T): T;
 
-    static hasProperty(value: AnyValue, path: string[]): boolean;
+    static getIn(object: AnyValue, path: ValueKey[]): AnyValue;
+
+    static parseInt(value: ValueKey): number;
+
+    static hasOwn(tree: ValueTree, property: ValueKey): boolean;
+
+    static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean;
 
     static serialize(value: AnyValue): string;
+
+    static stringify(value: AnyValue): string;
 }
 
 //# sourceMappingURL=compare-utils.d.ts.map

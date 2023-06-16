@@ -1,8 +1,12 @@
 import {
     AnyValue,
     Evaluable,
+    GenericValueArray,
+    GenericValueRecord,
+    GenericValueTree,
     ValueArray,
     ValueFunction,
+    ValueKey,
     ValuePrimitive,
     ValueRecord,
     ValueTree
@@ -24,13 +28,27 @@ export abstract class CompareUtils {
             );
     }
 
+    static isKey(value: AnyValue): value is ValueKey {
+        return CompareUtils.isEvaluable(value)
+            && (CompareUtils.isNumber(value)
+                || CompareUtils.isString(value))
+    }
+
     static isNumber(value: AnyValue): value is number {
         return CompareUtils.isEvaluable(value)
             && (
                 typeof value === "number"
                 || Object.getPrototypeOf(value).constructor === Number
             )
-            && !isNaN(+value);
+            && !isNaN(+CompareUtils.stringify(value));
+    }
+
+    static isSymbol(value: AnyValue): value is symbol {
+        return CompareUtils.isEvaluable(value)
+            && (
+                typeof value === "symbol"
+                || Object.getPrototypeOf(value).constructor === Symbol
+            );
     }
 
     static isString(value: AnyValue): value is string {
@@ -41,33 +59,32 @@ export abstract class CompareUtils {
             );
     }
 
-    static isArray<T>(value: AnyValue): value is T[] {
+    static isArray<T = AnyValue>(value: AnyValue): value is GenericValueArray<T> {
         return CompareUtils.isEvaluable(value)
-            && Object.getPrototypeOf(value).constructor === Array
             && Array.isArray(value);
     }
 
-    static isRecord(value: AnyValue): value is ValueRecord {
+    static isRecord<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
         return CompareUtils.isEvaluable(value)
             && typeof value === "object"
             && Object.getPrototypeOf(value).constructor.name === "Object";
     }
 
-    static isObject(value: AnyValue): value is ValueRecord {
+    static isObject<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
         return CompareUtils.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array", "Object"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static hasStringIndex(value: AnyValue): value is ValueRecord {
+    static hasStringIndex<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
         return CompareUtils.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static isTree(value: AnyValue): value is ValueTree {
+    static isTree<T = AnyValue>(value: AnyValue): value is GenericValueTree<T> {
         return CompareUtils.isArray(value)
             || CompareUtils.hasStringIndex(value);
     }
@@ -77,7 +94,7 @@ export abstract class CompareUtils {
             (
                 typeof value === 'function'
                 || (value instanceof Function)
-                || {}.toString.call(value) === '[object Function]'
+                || CompareUtils.stringify(value) === '[object Function]'
             );
     }
 
@@ -110,43 +127,44 @@ export abstract class CompareUtils {
         return valueCompareState;
     }
 
-    static deepClone<T, I>(source: T): T {
-        if (Array.isArray(source)) {
-            return (source as unknown as I[]).map((item: I): I => CompareUtils.deepClone(item)) as unknown as T;
-        }
-        if (source instanceof Date) {
-            return new Date(source.getTime()) as unknown as T;
-        }
-        if (source && typeof source === "object") {
-            const sourceObj = source as unknown as Record<string, unknown>;
-            return Object.getOwnPropertyNames(source).reduce((o, prop) => {
-                const propDesc = Object.getOwnPropertyDescriptor(source, prop);
+    static keys<T extends ValueTree, R extends ValueKey = T extends GenericValueArray ? string : number>(tree: T): R[] {
+        return CompareUtils.isArray(tree)
+            ? Object.keys(tree).map(index => parseInt(index)) as R[]
+            : Object.getOwnPropertyNames(tree) as R[];
+    }
+
+    static deepClone<T extends AnyValue>(source: T): T {
+        if (CompareUtils.isArray(source)) {
+            return source.map((item): AnyValue => CompareUtils.deepClone(item)) as T;
+        } else if (CompareUtils.hasStringIndex(source)) {
+            return CompareUtils.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
+                const propDesc = Object.getOwnPropertyDescriptor(source, property);
                 if (propDesc !== undefined) {
-                    Object.defineProperty(o, prop, propDesc);
+                    Object.defineProperty(object, property, propDesc);
                 }
-                o[prop] = CompareUtils.deepClone(sourceObj[prop]);
-                return o;
-            }, Object.create(Object.getPrototypeOf(source) as object) as Record<string, unknown>) as unknown as T;
+                object[property] = CompareUtils.deepClone(source[property]);
+                return object;
+            }, Object.create(Object.getPrototypeOf(source)) as ValueRecord) as T;
         }
         return source;
     }
 
     /**
      * Retrieves an element from a tree
-     * @author @josdejong/svelte-jsoneditor
      * @param object
      * @param path
      */
-    static getIn(object: AnyValue, path: string[]): AnyValue {
+    static getIn(object: AnyValue, path: ValueKey[]): AnyValue {
         let value: AnyValue | undefined = object
         let i = 0
 
         if (value) {
             while (i < path.length) {
+                const nextPath = path[i];
                 if (CompareUtils.hasStringIndex(value)) {
-                    value = value[path[i]]
+                    value = value[nextPath]
                 } else if (CompareUtils.isArray<AnyValue>(value)) {
-                    value = value[parseInt(path[i])]
+                    value = value[CompareUtils.parseInt(nextPath)]
                 } else {
                     value = undefined
                 }
@@ -158,29 +176,43 @@ export abstract class CompareUtils {
         return value
     }
 
-    static hasProperty(value: AnyValue, path: string[]): boolean {
-        if (!CompareUtils.isEvaluable(value)) {
-            return false;
+    static parseInt(value: ValueKey): number {
+        if (CompareUtils.isNumber(value)) {
+            return value;
+        }
+        return parseInt(value);
+    }
+
+    static hasOwn(tree: ValueTree, property: ValueKey): boolean {
+        if (CompareUtils.isArray(tree) && CompareUtils.isNumber(property)) {
+            return property < tree.length;
+        }
+        return Object.hasOwn(tree, property)
+    }
+
+    static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean {
+        if (CompareUtils.isKey(path)) {
+            path = [path]
         }
 
         if (path.length === 0) {
             return true;
-        }
-
-        if (!CompareUtils.isTree(value)) {
-            return path.length > 0;
-        }
-
-        const propertyPath = CompareUtils.isArray(value) ? parseInt(path[0]) : path[0];
-
-        if (path.length === 1) {
-            return Object.hasOwn(value, propertyPath);
-        } else if (!Object.hasOwn(value, propertyPath)) {
+        } else if (!CompareUtils.isEvaluable(value) || !CompareUtils.isTree(value)) {
             return false;
         }
 
-        const subValue = CompareUtils.isNumber(propertyPath) ?
-            (value as ValueArray)[propertyPath] : (value as ValueRecord)[propertyPath];
+        let currentProperty = path[0];
+
+        if (path.length === 1) {
+            return CompareUtils.hasOwn(value, currentProperty);
+        } else if (!CompareUtils.hasOwn(value, currentProperty)) {
+            return false;
+        }
+
+        const subValue = CompareUtils.isNumber(currentProperty)
+            ? (value as ValueArray)[currentProperty]
+            : (value as ValueRecord)[currentProperty];
+
 
         return CompareUtils.isTree(subValue)
             ? CompareUtils.hasProperty(subValue, path.slice(1))
@@ -196,40 +228,43 @@ export abstract class CompareUtils {
         return JSON.stringify(flat);
     }
 
+    static stringify(value: AnyValue): string {
+        if (CompareUtils.isEvaluable(value)) {
+            if (typeof value.toString !== undefined
+                || CompareUtils.isSymbol(value)
+            ) {
+                return value.toString();
+            }
+            return value + "";
+        }
+        return value === null ? "null" : "undefined";
+    }
+
     private static flat(value: AnyValue): AnyValue {
         const typeState = new TypeState(value);
 
-        if (!CompareUtils.isEvaluable(value)) {
-            return value === null ? "null" : "undefined";
-        }
-
-        if (typeState.isPrimitive) {
+        if (!typeState.isValuable || typeState.isPrimitive || typeState.isFunction) {
             if (CompareUtils.isString(value)) {
                 return `"${value}"`;
             }
 
-            return value.toString();
+            return CompareUtils.stringify(value);
+        } else if (CompareUtils.isTree(value)) {
+            const flat: Record<string | number, AnyValue> = typeState.isArray ?
+                [] as Record<number, AnyValue> : {} as ValueRecord;
+
+
+            const keys = CompareUtils.keys(value);
+
+            keys.forEach((index) => {
+                if (CompareUtils.isArray(value)) {
+                    flat[index] = CompareUtils.flat(value[CompareUtils.parseInt(index)]);
+                } else if (CompareUtils.hasStringIndex(value)) {
+                    flat[index] = CompareUtils.flat(value[index]);
+                }
+            });
+            return flat;
         }
-
-        if (typeState.isFunction) {
-            return value.toString();
-        }
-
-        const flat: Record<string | number, AnyValue> = typeState.isArray ?
-            [] as Record<number, AnyValue> : {} as ValueRecord;
-
-        const items = CompareUtils.isArray(value)
-            ? value.map((_, index) => index.toString())
-            : Object.keys(value);
-
-        items.forEach((index) => {
-            if (CompareUtils.isArray(value)) {
-                flat[index] = CompareUtils.flat(value[parseInt(index, 10)] as AnyValue);
-            } else if (CompareUtils.hasStringIndex(value)) {
-                flat[index] = CompareUtils.flat(value[index] as AnyValue);
-            }
-        });
-
-        return flat;
+        return value;
     }
 }

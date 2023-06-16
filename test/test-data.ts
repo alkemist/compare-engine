@@ -1,4 +1,4 @@
-import {TypeStateEnum} from "../src/type-state";
+import {TypeStateEnum} from "../src";
 
 
 const voidFunction: () => void = () => {

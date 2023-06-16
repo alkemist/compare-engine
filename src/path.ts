@@ -1,7 +1,9 @@
-export class Path extends Array<string> {
+import {ValueKey} from "./value.interface.js";
 
-    add(el: string | number): Path {
-        super.push(el.toString());
+export class Path extends Array<ValueKey> {
+
+    add(el: ValueKey): Path {
+        super.push(el);
         return this;
     }
 
@@ -10,10 +12,16 @@ export class Path extends Array<string> {
     }
 
     override slice(start?: number, end?: number): Path {
-        return new Path(...super.slice(start, end));
+        const path = new Path();
+        path.push(...super.slice(start, end))
+        return path;
     }
 
     override toString(): string {
         return this.join('/');
+    }
+
+    last(): ValueKey | undefined {
+        return this.length > 0 ? this[this.length - 1] : undefined;
     }
 }

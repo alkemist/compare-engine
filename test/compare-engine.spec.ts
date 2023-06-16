@@ -1,5 +1,5 @@
 import {describe, expect, it} from "@jest/globals";
-import {AnyValue, CompareEngine} from "../src";
+import {AnyValue, CompareEngine, ValuePrimitive} from "../src";
 import {CompareStateEnum} from "../src/compare-state.enum";
 
 class Parent<T extends boolean | string = string> {
@@ -63,7 +63,7 @@ describe("CompareEngine", () => {
                 ]
             };
 
-            let compareEngine = new CompareEngine((_: string[]) => {
+            let compareEngine = new CompareEngine((_: ValuePrimitive[]) => {
                 return "id";
             });
 
@@ -169,7 +169,7 @@ describe("CompareEngine", () => {
             ] as CompareEngineExample[])(
                 "$name",
                 (compareExample) => {
-                    const compareEngine = new CompareEngine((_: string[]) => {
+                    const compareEngine = new CompareEngine((_: ValuePrimitive[]) => {
                         return "id";
                     }, compareExample.leftValue, compareExample.rightValue);
                     compareEngine.updateCompareIndex();
@@ -591,7 +591,7 @@ describe("CompareEngine", () => {
         });
 
         describe("All configurations", () => {
-            const compareEngine = new CompareEngine((_: string[]) => {
+            const compareEngine = new CompareEngine((_: ValuePrimitive[]) => {
                 return "id";
             });
 
