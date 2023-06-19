@@ -1,12 +1,11 @@
 {
   "name": "@alkemist/compare-engine",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "description": "Comparison engine",
   "main": "lib/index.min.mjs",
   "type": "module",
   "types": "lib/index.d.ts",
   "module": "lib/index.min.mjs",
-  "exports": "./lib/index.min.mjs",
   "private": false,
   "scripts": {
     "dist": "rm -f dist/* && tsc --project tsconfig.dist.json",
@@ -40,7 +39,8 @@
     "diff",
     "difference",
     "type",
-    "class"
+    "class",
+    "change"
   ],
   "author": "Jérémy ACHAIN",
   "license": "Apache-2.0",
