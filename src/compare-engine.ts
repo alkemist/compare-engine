@@ -5,15 +5,15 @@ import {CompareUtils} from "./compare-utils.js";
 import {FindedItemInterface} from "./finded-item.interface.js";
 import {Path} from "./path.js";
 
-export class CompareEngine {
+export class CompareEngine<T extends AnyValue = AnyValue> {
     private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
     private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
-    private readonly panels: Record<PanelEnum, AnyValue>;
+    private readonly panels: Record<PanelEnum, T | undefined>;
 
     constructor(
         protected determineArrayIndexFn?: (paths: ValueKey[]) => ValueKey,
-        leftValue: AnyValue = null,
-        rightValue: AnyValue = null
+        leftValue?: T,
+        rightValue?: T
     ) {
         this.compareStateIndex = {
             left: new Map<string, CompareState>(),
@@ -37,19 +37,19 @@ export class CompareEngine {
         this._logsEnabled = logsEnabled;
     }
 
-    get leftValue() {
+    get leftValue(): T | undefined {
         return CompareUtils.deepClone(this.panels[PanelEnum.LEFT]);
     }
 
-    get rightValue() {
+    get rightValue(): T | undefined {
         return CompareUtils.deepClone(this.panels[PanelEnum.RIGHT]);
     }
 
-    updateLeft(value: AnyValue) {
+    updateLeft(value: T | undefined) {
         this.update(PanelEnum.LEFT, value);
     }
 
-    updateRight(value: AnyValue) {
+    updateRight(value: T | undefined) {
         this.update(PanelEnum.RIGHT, value);
     }
 
@@ -93,7 +93,7 @@ export class CompareEngine {
         ) ?? CompareState.NONE;
     }
 
-    protected update(panel: PanelEnum, value: AnyValue): void {
+    protected update(panel: PanelEnum, value: T | undefined): void {
         this.panels[panel] = CompareUtils.deepClone(value);
         this.arrayIndex[panel].clear();
     }
@@ -185,7 +185,7 @@ export class CompareEngine {
             : CompareState.UPDATED;
     }
 
-    protected compare(panel: PanelEnum, sideValue: AnyValue | undefined, path: Path = new Path())
+    protected compare(panel: PanelEnum, sideValue: AnyValue, path: Path = new Path())
         : void {
         let otherSideValue: AnyValue, logsEnabled = this._logsEnabled;
         let compareState = CompareState.NONE;
@@ -207,8 +207,8 @@ export class CompareEngine {
             console.log('-- Array diffs : ', arrayDiffLevels);
         }
 
-        let currentRoot = this.panels[panel];
-        let currentOtherRoot = this.panels[otherPanel];
+        let currentRoot: AnyValue | undefined = this.panels[panel];
+        let currentOtherRoot: AnyValue | undefined = this.panels[otherPanel];
         let currentPath = path.clone();
         let currentSideValue = CompareUtils.deepClone(sideValue);
 
