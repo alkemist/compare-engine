@@ -1,4 +1,4 @@
-import { ValueKey } from "./value.interface.js";
+import { ValueKey } from "./value.type.js";
 export declare class Path extends Array<ValueKey> {
     add(el: ValueKey): Path;
     clone(): Path;

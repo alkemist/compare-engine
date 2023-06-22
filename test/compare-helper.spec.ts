@@ -1,13 +1,13 @@
 import {describe, expect, it} from "@jest/globals";
 import {testValues, ValueTest} from "./test-data";
-import {AnyValue, CompareUtils} from "../src";
+import {AnyValue, CompareHelper} from "../src";
 
-describe("CompareUtils", () => {
+describe("CompareHelper", () => {
     describe("serialize", () => {
         it.each(testValues)(
             "Value '$name' should serialize",
             (serializeTest) => {
-                expect(CompareUtils.serialize(serializeTest.value))
+                expect(CompareHelper.serialize(serializeTest.value))
                     .toStrictEqual(serializeTest.expectedSerialize);
             }
         );
@@ -21,11 +21,11 @@ describe("CompareUtils", () => {
         {function: "isRecord"},
         {function: "isObject"},
         {function: "isFunction"},
-    ] as { function: keyof CompareUtils & keyof ValueTest }[])(
+    ] as { function: keyof CompareHelper & keyof ValueTest }[])(
         "$function",
         (test) => {
             const method: (value: AnyValue) => boolean
-                = CompareUtils[test.function];
+                = CompareHelper[test.function];
             const testSequence = `${test.function} with value '$name' should return '$${test.function}'`;
 
             it.each(testValues)(

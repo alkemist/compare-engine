@@ -12,6 +12,10 @@ export class CompareState {
         return new CompareState(CompareStateEnum.ADDED);
     }
 
+    static get MOVED() {
+        return new CompareState(CompareStateEnum.MOVED);
+    }
+
     static get UPDATED() {
         return new CompareState(CompareStateEnum.UPDATED);
     }
@@ -34,6 +38,10 @@ export class CompareState {
 
     get isAdded() {
         return this._value === CompareStateEnum.ADDED;
+    }
+
+    get isMoved() {
+        return this._value === CompareStateEnum.MOVED;
     }
 
     get isUpdated() {

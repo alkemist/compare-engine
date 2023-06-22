@@ -1,20 +1,20 @@
 import { CompareState } from "./compare-state.js";
 import { PanelEnum } from "./panel.enum.js";
-import { AnyValue, ValueKey, ValueRecord } from "./value.interface.js";
+import { AnyValue, ValueKey, ValueRecord } from "./value.type.js";
 import { FindedItemInterface } from "./finded-item.interface.js";
 import { Path } from "./path.js";
-export declare class CompareEngine<T extends AnyValue = AnyValue> {
+export declare class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
     protected determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined;
     private readonly compareStateIndex;
     private readonly arrayIndex;
     private readonly panels;
-    constructor(determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined, leftValue?: T, rightValue?: T);
+    constructor(determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined, leftValue?: DATA_TYPE, rightValue?: DATA_TYPE);
     private _logsEnabled;
     set logsEnabled(logsEnabled: boolean);
-    get leftValue(): T | undefined;
-    get rightValue(): T | undefined;
-    updateLeft(value: T | undefined): void;
-    updateRight(value: T | undefined): void;
+    get leftValue(): DATA_TYPE | undefined;
+    get rightValue(): DATA_TYPE | undefined;
+    updateLeft(value: DATA_TYPE | undefined): void;
+    updateRight(value: DATA_TYPE | undefined): void;
     leftToRight(): void;
     rightToLeft(): void;
     updateCompareIndex(): void;
@@ -22,7 +22,7 @@ export declare class CompareEngine<T extends AnyValue = AnyValue> {
     getLeftState(path: ValueKey[] | ValueKey): CompareState;
     getRightState(path: ValueKey[] | ValueKey): CompareState;
     protected getState(panel: PanelEnum, paths: ValueKey[] | ValueKey): CompareState;
-    protected update(panel: PanelEnum, value: T | undefined): void;
+    protected update(panel: PanelEnum, value: DATA_TYPE | undefined): void;
     protected findArrayDiffLevels(panel: PanelEnum, path: Path, level?: number, diffs?: number[], logsEnabled?: boolean): number[];
     protected findCompareItem(sideValue: AnyValue, otherSideItems: ValueRecord[], searchKey: ValueKey): FindedItemInterface;
     protected comparePropertyValues(panel: PanelEnum, sideValue: AnyValue, otherSideObject: AnyValue, propertyPath: Path, logsEnabled?: boolean): CompareState;

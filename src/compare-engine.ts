@@ -1,19 +1,19 @@
 import {CompareState} from "./compare-state.js";
 import {PanelEnum} from "./panel.enum.js";
-import {AnyValue, ValueKey, ValueRecord} from "./value.interface.js";
-import {CompareUtils} from "./compare-utils.js";
+import {AnyValue, ValueKey, ValueRecord} from "./value.type.js";
+import {CompareHelper} from "./compare.helper.js";
 import {FindedItemInterface} from "./finded-item.interface.js";
 import {Path} from "./path.js";
 
-export class CompareEngine<T extends AnyValue = AnyValue> {
+export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
     private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
     private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
-    private readonly panels: Record<PanelEnum, T | undefined>;
+    private readonly panels: Record<PanelEnum, DATA_TYPE | undefined>;
 
     constructor(
         protected determineArrayIndexFn?: (paths: ValueKey[]) => ValueKey,
-        leftValue?: T,
-        rightValue?: T
+        leftValue?: DATA_TYPE,
+        rightValue?: DATA_TYPE
     ) {
         this.compareStateIndex = {
             left: new Map<string, CompareState>(),
@@ -37,19 +37,19 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
         this._logsEnabled = logsEnabled;
     }
 
-    get leftValue(): T | undefined {
-        return CompareUtils.deepClone(this.panels[PanelEnum.LEFT]);
+    get leftValue(): DATA_TYPE | undefined {
+        return CompareHelper.deepClone(this.panels[PanelEnum.LEFT]);
     }
 
-    get rightValue(): T | undefined {
-        return CompareUtils.deepClone(this.panels[PanelEnum.RIGHT]);
+    get rightValue(): DATA_TYPE | undefined {
+        return CompareHelper.deepClone(this.panels[PanelEnum.RIGHT]);
     }
 
-    updateLeft(value: T | undefined) {
+    updateLeft(value: DATA_TYPE | undefined) {
         this.update(PanelEnum.LEFT, value);
     }
 
-    updateRight(value: T | undefined) {
+    updateRight(value: DATA_TYPE | undefined) {
         this.update(PanelEnum.RIGHT, value);
     }
 
@@ -82,7 +82,7 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
     }
 
     protected getState(panel: PanelEnum, paths: ValueKey[] | ValueKey): CompareState {
-        const path = Path.from(CompareUtils.isArray(paths) ? paths : [paths]);
+        const path = Path.from(CompareHelper.isArray(paths) ? paths : [paths]);
 
         if (this._logsEnabled) {
             console.log(`- [${panel}] Get state :`, paths, path)
@@ -93,8 +93,8 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
         ) ?? CompareState.NONE;
     }
 
-    protected update(panel: PanelEnum, value: T | undefined): void {
-        this.panels[panel] = CompareUtils.deepClone(value);
+    protected update(panel: PanelEnum, value: DATA_TYPE | undefined): void {
+        this.panels[panel] = CompareHelper.deepClone(value);
         this.arrayIndex[panel].clear();
     }
 
@@ -131,8 +131,8 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
     ): FindedItemInterface {
         let itemIndex;
 
-        if (searchKey && CompareUtils.hasProperty(sideValue, [searchKey]) &&
-            CompareUtils.hasStringIndex(sideValue)
+        if (searchKey && CompareHelper.hasProperty(sideValue, [searchKey]) &&
+            CompareHelper.hasStringIndex(sideValue)
         ) {
             itemIndex = otherSideItems
                 .findIndex((item) => item[searchKey] === sideValue[searchKey]);
@@ -155,22 +155,22 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
         logsEnabled = false,
     ): CompareState {
         if (logsEnabled) {
-            console.log('--- Compare property value', propertyPath.toString(), CompareUtils.hasProperty(otherSideObject, propertyPath) ? "exist" : "not exist");
+            console.log('--- Compare property value', propertyPath.toString(), CompareHelper.hasProperty(otherSideObject, propertyPath) ? "exist" : "not exist");
             console.log('--- in object', otherSideObject)
         }
 
-        if (!CompareUtils.hasProperty(otherSideObject, propertyPath)) {
+        if (!CompareHelper.hasProperty(otherSideObject, propertyPath)) {
             return this.getIncomparableState(panel);
         }
 
-        const currentOtherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
+        const currentOtherSideValue = CompareHelper.getIn(otherSideObject, propertyPath);
 
         if (logsEnabled) {
-            console.log('--- Is equal ?', CompareUtils.isEqual(sideValue, currentOtherSideValue));
+            console.log('--- Is equal ?', CompareHelper.isEqual(sideValue, currentOtherSideValue));
             console.log('--- Other side value', currentOtherSideValue);
         }
 
-        return CompareUtils.isEqual(sideValue, currentOtherSideValue)
+        return CompareHelper.isEqual(sideValue, currentOtherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
     }
@@ -180,7 +180,7 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
     }
 
     protected compareValues(sideValue: AnyValue, otherSideValue: AnyValue): CompareState {
-        return CompareUtils.isEqual(sideValue, otherSideValue)
+        return CompareHelper.isEqual(sideValue, otherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
     }
@@ -192,8 +192,8 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
 
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
 
-        if (CompareUtils.isEvaluable(sideValue) && !CompareUtils.isPrimitive(sideValue)) {
-            this.arrayIndex[panel].set(path.toString(), CompareUtils.isArray(sideValue));
+        if (CompareHelper.isEvaluable(sideValue) && !CompareHelper.isPrimitive(sideValue)) {
+            this.arrayIndex[panel].set(path.toString(), CompareHelper.isArray(sideValue));
         }
 
         if (logsEnabled) {
@@ -210,12 +210,12 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
         let currentRoot: AnyValue | undefined = this.panels[panel];
         let currentOtherRoot: AnyValue | undefined = this.panels[otherPanel];
         let currentPath = path.clone();
-        let currentSideValue = CompareUtils.deepClone(sideValue);
+        let currentSideValue = CompareHelper.deepClone(sideValue);
 
         if (arrayDiffLevels.length > 0) {
             arrayDiffLevels.forEach((arrayDiffLevel) => {
                 const arrayPath = currentPath.slice(0, currentPath.length - arrayDiffLevel);
-                const otherSideItems = CompareUtils.getIn(currentOtherRoot, arrayPath);
+                const otherSideItems = CompareHelper.getIn(currentOtherRoot, arrayPath);
 
                 if (logsEnabled) {
                     console.log('--- Current array diff : ', arrayDiffLevel)
@@ -223,12 +223,12 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                     console.log('--- Current side value : ', currentSideValue)
                     console.log('--- Array path : ', arrayPath)
                     console.log('--- Other side items : ', otherSideItems)
-                    console.log('--- Other side is array ?', CompareUtils.isArray<ValueRecord>(otherSideItems))
+                    console.log('--- Other side is array ?', CompareHelper.isArray<ValueRecord>(otherSideItems))
                 }
 
-                if (CompareUtils.isArray<ValueRecord>(otherSideItems)) {
+                if (CompareHelper.isArray<ValueRecord>(otherSideItems)) {
                     if (arrayDiffLevel === 0) {
-                        currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
+                        currentSideValue = CompareHelper.getIn(currentRoot, arrayPath);
 
                         if (logsEnabled) {
                             console.log('-- Array diff 0');
@@ -243,7 +243,7 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                         const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(currentPath) : "";
                         const objectPath = currentPath.slice(0, arrayPath.length + 1);
 
-                        const sideObject = CompareUtils.getIn(currentRoot, objectPath) as AnyValue;
+                        const sideObject = CompareHelper.getIn(currentRoot, objectPath) as AnyValue;
 
                         const itemFinded = this.findCompareItem(sideObject, otherSideItems, searchKey);
                         const otherSideObject = itemFinded.value;
@@ -260,7 +260,7 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                             if (arrayDiffLevel === 1) {
                                 const index = currentPath.last();
                                 if (index !== undefined) {
-                                    currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
+                                    currentSideValue = CompareHelper.getIn(sideObject, propertyPath);
                                     if (logsEnabled) {
                                         console.log('-- Array diff 1', propertyPath);
                                         console.log('-- Other side value : ', itemFinded.value);
@@ -275,14 +275,19 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                                         console.log('-- compare value : ', compareValue.value);
                                     }
 
-                                    compareState = compareIndex.isUpdated || compareValue.isUpdated
-                                        ? CompareState.UPDATED : CompareState.EQUAL;
+                                    if (compareIndex.isUpdated && compareValue.isEqual) {
+                                        compareState = CompareState.MOVED;
+                                    } else if (compareValue.isUpdated) {
+                                        compareState = CompareState.UPDATED
+                                    } else {
+                                        compareState = CompareState.EQUAL;
+                                    }
                                 }
                             } else {
-                                currentSideValue = CompareUtils.getIn(sideObject, propertyPath);
+                                currentSideValue = CompareHelper.getIn(sideObject, propertyPath);
 
                                 if (logsEnabled) {
-                                    otherSideValue = CompareUtils.getIn(otherSideObject, propertyPath);
+                                    otherSideValue = CompareHelper.getIn(otherSideObject, propertyPath);
 
                                     console.log('-- Array diff > 1', propertyPath);
                                     console.log('-- Other side object : ', otherSideObject);
@@ -299,19 +304,19 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                             }
 
                             currentPath = propertyPath.clone();
-                            currentRoot = CompareUtils.deepClone(sideObject);
-                            currentSideValue = CompareUtils.deepClone(sideObject);
-                            currentOtherRoot = CompareUtils.deepClone(otherSideObject);
+                            currentRoot = CompareHelper.deepClone(sideObject);
+                            currentSideValue = CompareHelper.deepClone(sideObject);
+                            currentOtherRoot = CompareHelper.deepClone(otherSideObject);
 
                             if (logsEnabled) {
-                                otherSideValue = CompareUtils.deepClone(otherSideObject);
+                                otherSideValue = CompareHelper.deepClone(otherSideObject);
                             }
                         } else {
                             compareState = this.getIncomparableState(panel);
                         }
                     }
                 } else {
-                    currentSideValue = CompareUtils.getIn(currentRoot, arrayPath);
+                    currentSideValue = CompareHelper.getIn(currentRoot, arrayPath);
 
                     if (logsEnabled) {
                         console.log('-- No other side array')
@@ -332,7 +337,7 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
             );
 
             if (logsEnabled) {
-                otherSideValue = CompareUtils.getIn(this.panels[otherPanel], path);
+                otherSideValue = CompareHelper.getIn(this.panels[otherPanel], path);
                 console.log('-- No array upside');
                 console.log('-- Other side value : ', otherSideValue);
             }
@@ -343,8 +348,8 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
         }
         this.compareStateIndex[panel].set(path.toString(), compareState);
 
-        if (compareState.isUpdated && CompareUtils.isTree(sideValue)) {
-            const keys = CompareUtils.keys(sideValue);
+        if (compareState.isUpdated && CompareHelper.isTree(sideValue)) {
+            const keys = CompareHelper.keys(sideValue);
 
             if (logsEnabled) {
                 console.log('-- Sub keys : ', keys);
@@ -357,8 +362,8 @@ export class CompareEngine<T extends AnyValue = AnyValue> {
                     console.log(`-- Sub path :`, path, '+', index, '=>', subPath)
                 }
 
-                const subSideValue = CompareUtils.isArray(sideValue) ?
-                    sideValue[CompareUtils.parseInt(index)] : (sideValue as ValueRecord)[index];
+                const subSideValue = CompareHelper.isArray(sideValue) ?
+                    sideValue[CompareHelper.parseInt(index)] : (sideValue as ValueRecord)[index];
 
                 this.compare(panel, subSideValue, subPath)
             });

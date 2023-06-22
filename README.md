@@ -80,40 +80,40 @@ Compares 2 value, considering array object movement :
     compareEngine.getLeftState("") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/id") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray/0/id") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/property") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/otherObjectArray") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/otherObjectArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/0/id") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray/0/otherObjectArray/0/id") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/otherObjectArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/1/id") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray/0/otherObjectArray/1/id") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/otherArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray/0") // return REMOVED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray/1") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray/0/otherArray/0") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray/0/otherArray/1") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray/0/otherArray/2") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1") // return REMOVED CompareState
-    compareEngine.getLeftState("objectArray/1/id") // return NONE CompareState
-    compareEngine.getLeftState("objectArray/2") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/2/id") // return NONE CompareState
-
-    compareEngine.getLeftState("") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0") // return ADDED CompareState
-    compareEngine.getLeftState("objectArray/0/id") // return NONE CompareState
     compareEngine.getLeftState("objectArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/id") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/1/property") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherObjectArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherObjectArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherObjectArray/0/id") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/1/otherObjectArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherObjectArray/1/id") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/1/otherArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/otherArray/1") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/1/otherArray/2") // return ADDED CompareState
-    compareEngine.getLeftState("objectArray/2") // return EQUAL CompareState
-    compareEngine.getLeftState("objectArray/2/id") // return NONE CompareState
+    compareEngine.getLeftState("objectArray/1/id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray/2") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray/2/id") // return UPDATED CompareState
+
+    compareEngine.getRightState("") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/0") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/0/id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/property") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherObjectArray") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherObjectArray/0") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherObjectArray/0/id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherObjectArray/1") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherObjectArray/1/id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherArray") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherArray/0") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherArray/1") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/1/otherArray/2") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/2") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray/2/id") // return UPDATED CompareState
 
 ### With Objects
 
@@ -149,39 +149,53 @@ Compares 2 value, considering array object movement :
 ## Exposed models, enums and utils
 
     type NotEvaluable = null | undefined;
-    type ValuePrimitive = string | number | boolean
+    type ValueKey = string | number
+    type ValuePrimitive = ValueKey | boolean | symbol
     type ValueFunction = Function;
     type ValueArray = AnyValue[];
-    type ValueObject = object;
-    type ValueRecord = { [key: string]: AnyValue; };
+    type ValueRecord = {
+        [key: ValueKey]: AnyValue;
+    };
+    type GenericValueArray<T extends AnyValue> = T[];
+    type GenericValueRecord<T extends AnyValue> = {
+        [key: ValueKey]: T;
+    };
     type ValueTree = ValueArray | ValueObject | ValueRecord;
-    type Evaluable = ValuePrimitive | ValueFunction | ValueTree;
+    type GenericValueTree<T extends AnyValue> = GenericValueArray<T> | GenericValueRecord<T>;
+    type Evaluable = ValuePrimitive | ValueFunction | ValueTree | object;
     type AnyValue = Evaluable | NotEvaluable;
 
     enum CompareStateEnum {
         NONE = "",
         ADDED = "added",
+        MOVED = "moved",
         UPDATED = "updated",
         REMOVED = "removed",
         EQUAL = "equal",
     }
 
-    class CompareEngine {
+    class CompareEngine<T extends AnyValue = AnyValue> {
         constructor(
             protected determineArrayIndexFn?: (paths: string[]) => string
-            leftValue: AnyValue = null,
-            rightValue: AnyValue = null
+            leftValue?: T = null,
+            rightValue?: T = null
         )
 
-        updateLeft(json: any): void
-        updateRight(json: any): void
+        get leftValue(): T | undefined
+        get rightValue(): T | undefined
+
+        updateLeft(value: T | undefined): void
+        updateRight(value: T | undefined): void
+
+        leftToRight(): void
+        rightToLeft(): void
 
         updateCompareIndex(): void
 
         hasChange(): boolean
 
-        getLeftState(paths: string[] | string): CompareState
-        getRightState(paths: string[] | string): CompareState
+        getLeftState(paths: ValueKey[] | ValueKey): CompareState
+        getRightState(paths: ValueKey[] | ValueKey): CompareState
     }
 
     class CompareState {
@@ -189,6 +203,7 @@ Compares 2 value, considering array object movement :
 
         isNone(): boolean
         isAdded(): boolean
+        isMoved(): boolean
         isUpdated(): boolean
         isRemoved(): boolean
         isEqual(): boolean
@@ -197,24 +212,42 @@ Compares 2 value, considering array object movement :
         toString(): string
     }
 
-    abstract class CompareUtils {
+    abstract class CompareHelper {
+        static isEvaluable(value: AnyValue): value is Evaluable
+        static isBoolean(value: AnyValue): value is boolean
+        static isKey(value: AnyValue): value is ValueKey
         static isNumber(value: AnyValue): value is number
-        static isArray<T = AnyValue>(value: AnyValue): value is T[]
+        static isSymbol(value: AnyValue): value is symbol
         static isString(value: AnyValue): value is string
-        static isRecord(value: AnyValue): value is ValueRecord
-        static isTree(value: AnyValue): value is ValueTree
+        static isArray<T = AnyValue>(value: AnyValue): value is GenericValueArray<T>
+        static isRecord<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
+        static isObject<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
+        static hasStringIndex<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
+        static isTree<T = AnyValue>(value: AnyValue): value is GenericValueTree<T>
         static isFunction(value: AnyValue): value is ValueFunction
         static isPrimitive(value: AnyValue): value is ValuePrimitive
 
         static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean
 
-        static deepClone<T, I>(source: T): T
+        static keys<
+            D extends AnyValue, 
+            T extends GenericValueTree<D>, 
+            R extends ValueKey = T extends GenericValueArray<D> ? string : number
+        >(tree: T): R[]
+
+        static deepClone<T extends AnyValue>(source: T): T
 
         static getIn(object: AnyValue, path: string[]): AnyValue
+
+        static parseInt(value: ValueKey): number
+
+        static hasOwn(tree: ValueTree, property: ValueKey): boolean 
     
-        static hasProperty(value: AnyValue, path: string[]): boolean
+        static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean 
 
         static serialize(value: AnyValue): string
+
+        static stringify(value: AnyValue): string
     }
 
 ## License

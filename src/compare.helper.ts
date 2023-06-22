@@ -10,18 +10,18 @@ import {
     ValuePrimitive,
     ValueRecord,
     ValueTree
-} from "./value.interface.js";
+} from "./value.type.js";
 import {TypeState} from "./type-state.js";
 
 const PrimitiveClassNames = ["Boolean", "Number", "String"]
 
-export abstract class CompareUtils {
+export abstract class CompareHelper {
     static isEvaluable(value: AnyValue): value is Evaluable {
         return value !== null && value !== undefined;
     }
 
     static isBoolean(value: AnyValue): value is boolean {
-        return CompareUtils.isEvaluable(value)
+        return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "boolean"
                 || Object.getPrototypeOf(value).constructor === Boolean
@@ -29,22 +29,22 @@ export abstract class CompareUtils {
     }
 
     static isKey(value: AnyValue): value is ValueKey {
-        return CompareUtils.isEvaluable(value)
-            && (CompareUtils.isNumber(value)
-                || CompareUtils.isString(value))
+        return CompareHelper.isEvaluable(value)
+            && (CompareHelper.isNumber(value)
+                || CompareHelper.isString(value))
     }
 
     static isNumber(value: AnyValue): value is number {
-        return CompareUtils.isEvaluable(value)
+        return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "number"
                 || Object.getPrototypeOf(value).constructor === Number
             )
-            && !isNaN(+CompareUtils.stringify(value));
+            && !isNaN(+CompareHelper.stringify(value));
     }
 
     static isSymbol(value: AnyValue): value is symbol {
-        return CompareUtils.isEvaluable(value)
+        return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "symbol"
                 || Object.getPrototypeOf(value).constructor === Symbol
@@ -52,56 +52,56 @@ export abstract class CompareUtils {
     }
 
     static isString(value: AnyValue): value is string {
-        return CompareUtils.isEvaluable(value)
+        return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "string"
                 || Object.getPrototypeOf(value).constructor === String
             );
     }
 
-    static isArray<T = AnyValue>(value: AnyValue): value is GenericValueArray<T> {
-        return CompareUtils.isEvaluable(value)
+    static isArray<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueArray<T> {
+        return CompareHelper.isEvaluable(value)
             && Array.isArray(value);
     }
 
-    static isRecord<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
-        return CompareUtils.isEvaluable(value)
+    static isRecord<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+        return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && Object.getPrototypeOf(value).constructor.name === "Object";
     }
 
-    static isObject<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
-        return CompareUtils.isEvaluable(value)
+    static isObject<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+        return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array", "Object"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static hasStringIndex<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
-        return CompareUtils.isEvaluable(value)
+    static hasStringIndex<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+        return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static isTree<T = AnyValue>(value: AnyValue): value is GenericValueTree<T> {
-        return CompareUtils.isArray(value)
-            || CompareUtils.hasStringIndex(value);
+    static isTree<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueTree<T> {
+        return CompareHelper.isArray(value)
+            || CompareHelper.hasStringIndex(value);
     }
 
     static isFunction(value: AnyValue): value is ValueFunction {
-        return CompareUtils.isEvaluable(value) &&
+        return CompareHelper.isEvaluable(value) &&
             (
                 typeof value === 'function'
                 || (value instanceof Function)
-                || CompareUtils.stringify(value) === '[object Function]'
+                || CompareHelper.stringify(value) === '[object Function]'
             );
     }
 
     static isPrimitive(value: AnyValue): value is ValuePrimitive {
-        return CompareUtils.isEvaluable(value)
-            && !CompareUtils.isTree(value)
-            && !CompareUtils.isFunction(value);
+        return CompareHelper.isEvaluable(value)
+            && !CompareHelper.isTree(value)
+            && !CompareHelper.isFunction(value);
     }
 
     static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean {
@@ -109,8 +109,8 @@ export abstract class CompareUtils {
         let typeStateOtherSideValue = new TypeState(otherSideValue);
 
         const valueCompareState = Object.is(
-            CompareUtils.serialize(sideValue),
-            CompareUtils.serialize(otherSideValue)
+            CompareHelper.serialize(sideValue),
+            CompareHelper.serialize(otherSideValue)
         );
 
         if (valueCompareState) {
@@ -127,22 +127,26 @@ export abstract class CompareUtils {
         return valueCompareState;
     }
 
-    static keys<T extends ValueTree, R extends ValueKey = T extends GenericValueArray ? string : number>(tree: T): R[] {
-        return CompareUtils.isArray(tree)
+    static keys<
+        D extends AnyValue,
+        T extends GenericValueTree<D>,
+        R extends ValueKey = T extends GenericValueArray<D> ? string : number
+    >(tree: T): R[] {
+        return CompareHelper.isArray(tree)
             ? Object.keys(tree).map(index => parseInt(index)) as R[]
             : Object.getOwnPropertyNames(tree) as R[];
     }
 
     static deepClone<T extends AnyValue>(source: T): T {
-        if (CompareUtils.isArray(source)) {
-            return source.map((item): AnyValue => CompareUtils.deepClone(item)) as T;
-        } else if (CompareUtils.hasStringIndex(source)) {
-            return CompareUtils.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
+        if (CompareHelper.isArray(source)) {
+            return source.map((item): AnyValue => CompareHelper.deepClone(item)) as T;
+        } else if (CompareHelper.hasStringIndex(source)) {
+            return CompareHelper.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
                 const propDesc = Object.getOwnPropertyDescriptor(source, property);
                 if (propDesc !== undefined) {
                     Object.defineProperty(object, property, propDesc);
                 }
-                object[property] = CompareUtils.deepClone(source[property]);
+                object[property] = CompareHelper.deepClone(source[property]);
                 return object;
             }, Object.create(Object.getPrototypeOf(source)) as ValueRecord) as T;
         }
@@ -161,10 +165,10 @@ export abstract class CompareUtils {
         if (value) {
             while (i < path.length) {
                 const nextPath = path[i];
-                if (CompareUtils.hasStringIndex(value)) {
+                if (CompareHelper.hasStringIndex(value)) {
                     value = value[nextPath]
-                } else if (CompareUtils.isArray<AnyValue>(value)) {
-                    value = value[CompareUtils.parseInt(nextPath)]
+                } else if (CompareHelper.isArray<AnyValue>(value)) {
+                    value = value[CompareHelper.parseInt(nextPath)]
                 } else {
                     value = undefined
                 }
@@ -177,51 +181,51 @@ export abstract class CompareUtils {
     }
 
     static parseInt(value: ValueKey): number {
-        if (CompareUtils.isNumber(value)) {
+        if (CompareHelper.isNumber(value)) {
             return value;
         }
         return parseInt(value);
     }
 
     static hasOwn(tree: ValueTree, property: ValueKey): boolean {
-        if (CompareUtils.isArray(tree) && CompareUtils.isNumber(property)) {
+        if (CompareHelper.isArray(tree) && CompareHelper.isNumber(property)) {
             return property < tree.length;
         }
         return Object.hasOwn(tree, property)
     }
 
     static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean {
-        if (CompareUtils.isKey(path)) {
+        if (CompareHelper.isKey(path)) {
             path = [path]
         }
 
         if (path.length === 0) {
             return true;
-        } else if (!CompareUtils.isEvaluable(value) || !CompareUtils.isTree(value)) {
+        } else if (!CompareHelper.isEvaluable(value) || !CompareHelper.isTree(value)) {
             return false;
         }
 
         let currentProperty = path[0];
 
         if (path.length === 1) {
-            return CompareUtils.hasOwn(value, currentProperty);
-        } else if (!CompareUtils.hasOwn(value, currentProperty)) {
+            return CompareHelper.hasOwn(value, currentProperty);
+        } else if (!CompareHelper.hasOwn(value, currentProperty)) {
             return false;
         }
 
-        const subValue = CompareUtils.isNumber(currentProperty)
+        const subValue = CompareHelper.isNumber(currentProperty)
             ? (value as ValueArray)[currentProperty]
             : (value as ValueRecord)[currentProperty];
 
 
-        return CompareUtils.isTree(subValue)
-            ? CompareUtils.hasProperty(subValue, path.slice(1))
+        return CompareHelper.isTree(subValue)
+            ? CompareHelper.hasProperty(subValue, path.slice(1))
             : false;
     }
 
     static serialize(value: AnyValue): string {
-        const flat = CompareUtils.flat(value);
-        if (CompareUtils.isString(flat)) {
+        const flat = CompareHelper.flat(value);
+        if (CompareHelper.isString(flat)) {
             return flat;
         }
 
@@ -229,9 +233,9 @@ export abstract class CompareUtils {
     }
 
     static stringify(value: AnyValue): string {
-        if (CompareUtils.isEvaluable(value)) {
+        if (CompareHelper.isEvaluable(value)) {
             if (typeof value.toString !== undefined
-                || CompareUtils.isSymbol(value)
+                || CompareHelper.isSymbol(value)
             ) {
                 return value.toString();
             }
@@ -244,23 +248,23 @@ export abstract class CompareUtils {
         const typeState = new TypeState(value);
 
         if (!typeState.isValuable || typeState.isPrimitive || typeState.isFunction) {
-            if (CompareUtils.isString(value)) {
+            if (CompareHelper.isString(value)) {
                 return `"${value}"`;
             }
 
-            return CompareUtils.stringify(value);
-        } else if (CompareUtils.isTree(value)) {
+            return CompareHelper.stringify(value);
+        } else if (CompareHelper.isTree(value)) {
             const flat: Record<string | number, AnyValue> = typeState.isArray ?
                 [] as Record<number, AnyValue> : {} as ValueRecord;
 
 
-            const keys = CompareUtils.keys(value);
+            const keys = CompareHelper.keys(value);
 
             keys.forEach((index) => {
-                if (CompareUtils.isArray(value)) {
-                    flat[index] = CompareUtils.flat(value[CompareUtils.parseInt(index)]);
-                } else if (CompareUtils.hasStringIndex(value)) {
-                    flat[index] = CompareUtils.flat(value[index]);
+                if (CompareHelper.isArray(value)) {
+                    flat[index] = CompareHelper.flat(value[CompareHelper.parseInt(index)]);
+                } else if (CompareHelper.hasStringIndex(value)) {
+                    flat[index] = CompareHelper.flat(value[index]);
                 }
             });
             return flat;

@@ -78,14 +78,14 @@ describe("CompareEngine", () => {
                 {path: "objectArray/0/id", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/0/property", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/0/otherObjectArray", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/0/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/0/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/0/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/0/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/0/otherObjectArray/0", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/0/otherObjectArray/0/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/0/otherObjectArray/1", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/0/otherObjectArray/1/id", expected: CompareStateEnum.NONE},
                 {path: "objectArray/0/otherArray", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/0/otherArray/0", expected: CompareStateEnum.REMOVED},
                 {path: "objectArray/0/otherArray/1", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/0/otherArray/2", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/0/otherArray/2", expected: CompareStateEnum.MOVED},
                 {path: "objectArray/1", expected: CompareStateEnum.REMOVED},
                 {path: "objectArray/1/id", expected: CompareStateEnum.NONE},
                 {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
@@ -110,12 +110,12 @@ describe("CompareEngine", () => {
                 {path: "objectArray/1/id", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/1/property", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/1/otherObjectArray", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/1/otherObjectArray/0", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/1/otherObjectArray/0/id", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/1/otherObjectArray/1", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/1/otherObjectArray/1/id", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1/otherObjectArray/0", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/1/otherObjectArray/0/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/1/otherObjectArray/1", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/1/otherObjectArray/1/id", expected: CompareStateEnum.NONE},
                 {path: "objectArray/1/otherArray", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/1/otherArray/0", expected: CompareStateEnum.UPDATED},
+                {path: "objectArray/1/otherArray/0", expected: CompareStateEnum.MOVED},
                 {path: "objectArray/1/otherArray/1", expected: CompareStateEnum.EQUAL},
                 {path: "objectArray/1/otherArray/2", expected: CompareStateEnum.ADDED},
                 {path: "objectArray/2", expected: CompareStateEnum.EQUAL},
@@ -213,12 +213,12 @@ describe("CompareEngine", () => {
 
             it.each([
                 {path: "", expected: CompareStateEnum.UPDATED},
-                {path: "0", expected: CompareStateEnum.UPDATED},
-                {path: "0/id", expected: CompareStateEnum.EQUAL},
-                {path: "0/label", expected: CompareStateEnum.EQUAL},
-                {path: "1", expected: CompareStateEnum.UPDATED},
-                {path: "1/id", expected: CompareStateEnum.EQUAL},
-                {path: "1/label", expected: CompareStateEnum.EQUAL},
+                {path: "0", expected: CompareStateEnum.MOVED},
+                {path: "0/id", expected: CompareStateEnum.NONE},
+                {path: "0/label", expected: CompareStateEnum.NONE},
+                {path: "1", expected: CompareStateEnum.MOVED},
+                {path: "1/id", expected: CompareStateEnum.NONE},
+                {path: "1/label", expected: CompareStateEnum.NONE},
             ])(
                 "Get left compare state '$path' should return '$expected'",
                 (compareTest) => {
@@ -232,12 +232,12 @@ describe("CompareEngine", () => {
 
             it.each([
                 {path: "", expected: CompareStateEnum.UPDATED},
-                {path: "0", expected: CompareStateEnum.UPDATED},
-                {path: "0/id", expected: CompareStateEnum.EQUAL},
-                {path: "0/label", expected: CompareStateEnum.EQUAL},
-                {path: "1", expected: CompareStateEnum.UPDATED},
-                {path: "1/id", expected: CompareStateEnum.EQUAL},
-                {path: "1/label", expected: CompareStateEnum.EQUAL},
+                {path: "0", expected: CompareStateEnum.MOVED},
+                {path: "0/id", expected: CompareStateEnum.NONE},
+                {path: "0/label", expected: CompareStateEnum.NONE},
+                {path: "1", expected: CompareStateEnum.MOVED},
+                {path: "1/id", expected: CompareStateEnum.NONE},
+                {path: "1/label", expected: CompareStateEnum.NONE},
             ])(
                 "Get right compare state '$path' should return '$expected'",
                 (compareTest) => {
@@ -629,9 +629,9 @@ describe("CompareEngine", () => {
                 {path: "findTheBall/0", expected: CompareStateEnum.UPDATED},
                 {path: "findTheBall/0/id", expected: CompareStateEnum.EQUAL},
                 {path: "findTheBall/0/objects", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/0/objects/0", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/0/objects/0/id", expected: CompareStateEnum.EQUAL},
-                {path: "findTheBall/0/objects/0/objects", expected: CompareStateEnum.EQUAL},
+                {path: "findTheBall/0/objects/0", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/0/objects/0/id", expected: CompareStateEnum.NONE},
+                {path: "findTheBall/0/objects/0/objects", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/0/objects/0/objects/0", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/0/objects/0/objects/0/id", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/0/objects/1", expected: CompareStateEnum.EQUAL},
@@ -661,11 +661,11 @@ describe("CompareEngine", () => {
                 {path: "findTheBall/1/objects/1/objects/0/undefined2", expected: CompareStateEnum.UPDATED},
                 {path: "findTheBall/1/objects/1/objects/1", expected: CompareStateEnum.REMOVED},
                 {path: "findTheBall/1/objects/1/objects/1/id", expected: CompareStateEnum.NONE},
-                {path: "findTheBall/1/objects/1/objects/2", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/1/objects/1/objects/2/id", expected: CompareStateEnum.EQUAL},
-                {path: "findTheBall/2", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/2/id", expected: CompareStateEnum.EQUAL},
-                {path: "findTheBall/2/objects", expected: CompareStateEnum.EQUAL},
+                {path: "findTheBall/1/objects/1/objects/2", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/1/objects/1/objects/2/id", expected: CompareStateEnum.NONE},
+                {path: "findTheBall/2", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/2/id", expected: CompareStateEnum.NONE},
+                {path: "findTheBall/2/objects", expected: CompareStateEnum.NONE},
 
                 {path: "objectArray", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/0", expected: CompareStateEnum.EQUAL},
@@ -674,10 +674,10 @@ describe("CompareEngine", () => {
                 {path: "objectArray/0/func", expected: CompareStateEnum.NONE},
                 {path: "objectArray/0/object", expected: CompareStateEnum.NONE},
                 {path: "objectArray/0/object/property", expected: CompareStateEnum.NONE},
-                {path: "objectArray/1", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/1/id", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/1/label", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/1/array", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/1", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/1/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/1/label", expected: CompareStateEnum.NONE},
+                {path: "objectArray/1/array", expected: CompareStateEnum.NONE},
                 {path: "objectArray/1/array/0", expected: CompareStateEnum.NONE},
                 {
                     path: "objectArray/1/array/0/value",
@@ -719,11 +719,11 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectArray/5/array/1",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectArray/5/array/1/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {path: "objectArray/6", expected: CompareStateEnum.UPDATED},
                 {path: "objectArray/6/id", expected: CompareStateEnum.EQUAL},
@@ -812,15 +812,15 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectWithArray/indexMoved/0",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectWithArray/indexMoved/0/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/0/valueArray",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/0/valueArray/0",
@@ -832,15 +832,15 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectWithArray/indexMoved/1",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectWithArray/indexMoved/1/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/1/valueArray",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/1/valueArray/0",
@@ -930,9 +930,9 @@ describe("CompareEngine", () => {
                 },
 
                 {path: "findTheBall", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/0", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/0/id", expected: CompareStateEnum.EQUAL},
-                {path: "findTheBall/0/objects", expected: CompareStateEnum.EQUAL},
+                {path: "findTheBall/0", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/0/id", expected: CompareStateEnum.NONE},
+                {path: "findTheBall/0/objects", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/1", expected: CompareStateEnum.ADDED},
                 {path: "findTheBall/1/id", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/1/objects", expected: CompareStateEnum.NONE},
@@ -953,9 +953,9 @@ describe("CompareEngine", () => {
                 {path: "findTheBall/2/objects/1/objects/0/id", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/2/objects/1/objects/1", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/2/objects/1/objects/1/id", expected: CompareStateEnum.NONE},
-                {path: "findTheBall/2/objects/2", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/2/objects/2/id", expected: CompareStateEnum.EQUAL},
-                {path: "findTheBall/2/objects/2/objects", expected: CompareStateEnum.EQUAL},
+                {path: "findTheBall/2/objects/2", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/2/objects/2/id", expected: CompareStateEnum.NONE},
+                {path: "findTheBall/2/objects/2/objects", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/2/objects/2/objects/0", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/2/objects/2/objects/0/id", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/3", expected: CompareStateEnum.UPDATED},
@@ -964,8 +964,8 @@ describe("CompareEngine", () => {
                 {path: "findTheBall/3/objects/0", expected: CompareStateEnum.UPDATED},
                 {path: "findTheBall/3/objects/0/id", expected: CompareStateEnum.EQUAL},
                 {path: "findTheBall/3/objects/0/objects", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/3/objects/0/objects/0", expected: CompareStateEnum.UPDATED},
-                {path: "findTheBall/3/objects/0/objects/0/id", expected: CompareStateEnum.EQUAL},
+                {path: "findTheBall/3/objects/0/objects/0", expected: CompareStateEnum.MOVED},
+                {path: "findTheBall/3/objects/0/objects/0/id", expected: CompareStateEnum.NONE},
                 {path: "findTheBall/3/objects/0/objects/1", expected: CompareStateEnum.UPDATED},
                 {path: "findTheBall/3/objects/0/objects/1/id", expected: CompareStateEnum.EQUAL},
                 {path: "findTheBall/3/objects/0/objects/1/undefined1", expected: CompareStateEnum.EQUAL},
@@ -981,10 +981,10 @@ describe("CompareEngine", () => {
                 {path: "objectArray/1", expected: CompareStateEnum.ADDED},
                 {path: "objectArray/1/id", expected: CompareStateEnum.NONE},
                 {path: "objectArray/1/label", expected: CompareStateEnum.NONE},
-                {path: "objectArray/2", expected: CompareStateEnum.UPDATED},
-                {path: "objectArray/2/id", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/2/label", expected: CompareStateEnum.EQUAL},
-                {path: "objectArray/2/array", expected: CompareStateEnum.EQUAL},
+                {path: "objectArray/2", expected: CompareStateEnum.MOVED},
+                {path: "objectArray/2/id", expected: CompareStateEnum.NONE},
+                {path: "objectArray/2/label", expected: CompareStateEnum.NONE},
+                {path: "objectArray/2/array", expected: CompareStateEnum.NONE},
                 {path: "objectArray/2/array/0", expected: CompareStateEnum.NONE},
                 {
                     path: "objectArray/2/array/0/value",
@@ -1020,11 +1020,11 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectArray/6/array/0",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectArray/6/array/0/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectArray/6/array/1",
@@ -1114,15 +1114,15 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectWithArray/indexMoved/0",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectWithArray/indexMoved/0/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/0/valueArray",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/0/valueArray/0",
@@ -1134,15 +1134,15 @@ describe("CompareEngine", () => {
                 },
                 {
                     path: "objectWithArray/indexMoved/1",
-                    expected: CompareStateEnum.UPDATED
+                    expected: CompareStateEnum.MOVED
                 },
                 {
                     path: "objectWithArray/indexMoved/1/value",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/1/valueArray",
-                    expected: CompareStateEnum.EQUAL
+                    expected: CompareStateEnum.NONE
                 },
                 {
                     path: "objectWithArray/indexMoved/1/valueArray/0",

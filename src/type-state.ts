@@ -1,4 +1,4 @@
-import {CompareUtils} from "./compare-utils.js";
+import {CompareHelper} from "./compare.helper.js";
 
 export enum TypeStateEnum {
     NO_EVALUABLE = "no_evaluable",
@@ -15,13 +15,13 @@ export class TypeState {
     constructor(_value: any) {
         if (_value === undefined || _value === null) {
             this._type = TypeStateEnum.NO_EVALUABLE;
-        } else if (CompareUtils.isArray(_value)) {
+        } else if (CompareHelper.isArray(_value)) {
             this._type = TypeStateEnum.ARRAY
-        } else if (CompareUtils.isRecord(_value)) {
+        } else if (CompareHelper.isRecord(_value)) {
             this._type = TypeStateEnum.RECORD;
-        } else if (CompareUtils.isObject(_value)) {
+        } else if (CompareHelper.isObject(_value)) {
             this._type = TypeStateEnum.OBJECT;
-        } else if (CompareUtils.isFunction(_value)) {
+        } else if (CompareHelper.isFunction(_value)) {
             this._type = TypeStateEnum.FUNCTION
         } else {
             this._type = TypeStateEnum.PRIMITIVE

@@ -1,4 +1,4 @@
-import {ValueKey} from "./value.interface.js";
+import {ValueKey} from "./value.type.js";
 
 export class Path extends Array<ValueKey> {
 
