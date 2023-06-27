@@ -3,13 +3,13 @@ import { PanelEnum } from "./panel.enum.js";
 import { AnyValue, ValueKey, ValueRecord } from "./value.type.js";
 import { FindedItemInterface } from "./finded-item.interface.js";
 import { Path } from "./path.js";
-export declare class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
+export declare class CompareEngine<DATA_TYPE> {
     protected determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined;
     private readonly compareStateIndex;
     private readonly arrayIndex;
     private readonly panels;
-    constructor(determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined, leftValue?: DATA_TYPE, rightValue?: DATA_TYPE);
     private _logsEnabled;
+    constructor(determineArrayIndexFn?: ((paths: ValueKey[]) => ValueKey) | undefined, leftValue?: DATA_TYPE, rightValue?: DATA_TYPE);
     set logsEnabled(logsEnabled: boolean);
     get leftValue(): DATA_TYPE | undefined;
     get rightValue(): DATA_TYPE | undefined;
@@ -25,9 +25,9 @@ export declare class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
     protected update(panel: PanelEnum, value: DATA_TYPE | undefined): void;
     protected findArrayDiffLevels(panel: PanelEnum, path: Path, level?: number, diffs?: number[], logsEnabled?: boolean): number[];
     protected findCompareItem(sideValue: AnyValue, otherSideItems: ValueRecord[], searchKey: ValueKey): FindedItemInterface;
-    protected comparePropertyValues(panel: PanelEnum, sideValue: AnyValue, otherSideObject: AnyValue, propertyPath: Path, logsEnabled?: boolean): CompareState;
+    protected comparePropertyValues(panel: PanelEnum, sideValue: unknown, otherSideObject: unknown, propertyPath: Path, logsEnabled?: boolean): CompareState;
     protected getIncomparableState(panel: PanelEnum): CompareState;
-    protected compareValues(sideValue: AnyValue, otherSideValue: AnyValue): CompareState;
-    protected compare(panel: PanelEnum, sideValue: AnyValue, path?: Path): void;
+    protected compareValues(sideValue: unknown, otherSideValue: AnyValue): CompareState;
+    protected compare(panel: PanelEnum, sideValue: unknown, path?: Path): void;
 }
 //# sourceMappingURL=compare-engine.d.ts.map

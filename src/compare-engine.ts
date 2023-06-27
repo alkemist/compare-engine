@@ -5,10 +5,11 @@ import {CompareHelper} from "./compare.helper.js";
 import {FindedItemInterface} from "./finded-item.interface.js";
 import {Path} from "./path.js";
 
-export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
+export class CompareEngine<DATA_TYPE> {
     private readonly compareStateIndex: Record<PanelEnum, Map<string, CompareState>>;
     private readonly arrayIndex: Record<PanelEnum, Map<string, boolean>>;
     private readonly panels: Record<PanelEnum, DATA_TYPE | undefined>;
+    private _logsEnabled = false;
 
     constructor(
         protected determineArrayIndexFn?: (paths: ValueKey[]) => ValueKey,
@@ -30,8 +31,6 @@ export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
             right: rightValue
         };
     }
-
-    private _logsEnabled = false;
 
     set logsEnabled(logsEnabled: boolean) {
         this._logsEnabled = logsEnabled;
@@ -149,8 +148,8 @@ export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
 
     protected comparePropertyValues(
         panel: PanelEnum,
-        sideValue: AnyValue,
-        otherSideObject: AnyValue,
+        sideValue: unknown,
+        otherSideObject: unknown,
         propertyPath: Path,
         logsEnabled = false,
     ): CompareState {
@@ -179,15 +178,15 @@ export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
         return panel === PanelEnum.LEFT ? CompareState.REMOVED : CompareState.ADDED;
     }
 
-    protected compareValues(sideValue: AnyValue, otherSideValue: AnyValue): CompareState {
+    protected compareValues(sideValue: unknown, otherSideValue: AnyValue): CompareState {
         return CompareHelper.isEqual(sideValue, otherSideValue)
             ? CompareState.EQUAL
             : CompareState.UPDATED;
     }
 
-    protected compare(panel: PanelEnum, sideValue: AnyValue, path: Path = new Path())
+    protected compare(panel: PanelEnum, sideValue: unknown, path: Path = new Path())
         : void {
-        let otherSideValue: AnyValue, logsEnabled = this._logsEnabled;
+        let otherSideValue: unknown, logsEnabled = this._logsEnabled;
         let compareState = CompareState.NONE;
 
         const otherPanel = panel === PanelEnum.LEFT ? PanelEnum.RIGHT : PanelEnum.LEFT;
@@ -207,8 +206,8 @@ export class CompareEngine<DATA_TYPE extends AnyValue = AnyValue> {
             console.log('-- Array diffs : ', arrayDiffLevels);
         }
 
-        let currentRoot: AnyValue | undefined = this.panels[panel];
-        let currentOtherRoot: AnyValue | undefined = this.panels[otherPanel];
+        let currentRoot: unknown | undefined = this.panels[panel];
+        let currentOtherRoot: unknown | undefined = this.panels[otherPanel];
         let currentPath = path.clone();
         let currentSideValue = CompareHelper.deepClone(sideValue);
 

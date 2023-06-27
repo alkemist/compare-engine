@@ -16,11 +16,11 @@ import {TypeState} from "./type-state.js";
 const PrimitiveClassNames = ["Boolean", "Number", "String"]
 
 export abstract class CompareHelper {
-    static isEvaluable(value: AnyValue): value is Evaluable {
+    static isEvaluable(value: unknown): value is Evaluable {
         return value !== null && value !== undefined;
     }
 
-    static isBoolean(value: AnyValue): value is boolean {
+    static isBoolean(value: unknown): value is boolean {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "boolean"
@@ -28,13 +28,13 @@ export abstract class CompareHelper {
             );
     }
 
-    static isKey(value: AnyValue): value is ValueKey {
+    static isKey(value: unknown): value is ValueKey {
         return CompareHelper.isEvaluable(value)
             && (CompareHelper.isNumber(value)
                 || CompareHelper.isString(value))
     }
 
-    static isNumber(value: AnyValue): value is number {
+    static isNumber(value: unknown): value is number {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "number"
@@ -43,7 +43,7 @@ export abstract class CompareHelper {
             && !isNaN(+CompareHelper.stringify(value));
     }
 
-    static isSymbol(value: AnyValue): value is symbol {
+    static isSymbol(value: unknown): value is symbol {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "symbol"
@@ -51,7 +51,7 @@ export abstract class CompareHelper {
             );
     }
 
-    static isString(value: AnyValue): value is string {
+    static isString(value: unknown): value is string {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "string"
@@ -59,37 +59,37 @@ export abstract class CompareHelper {
             );
     }
 
-    static isArray<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueArray<T> {
+    static isArray<T>(value: unknown): value is GenericValueArray<T> {
         return CompareHelper.isEvaluable(value)
             && Array.isArray(value);
     }
 
-    static isRecord<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+    static isRecord<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && Object.getPrototypeOf(value).constructor.name === "Object";
     }
 
-    static isObject<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+    static isObject<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array", "Object"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static hasStringIndex<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueRecord<T> {
+    static hasStringIndex<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array"]
                 .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
     }
 
-    static isTree<T extends AnyValue = AnyValue>(value: AnyValue): value is GenericValueTree<T> {
-        return CompareHelper.isArray(value)
-            || CompareHelper.hasStringIndex(value);
+    static isTree<T = AnyValue>(value: unknown): value is GenericValueTree<T> {
+        return CompareHelper.isArray<T>(value)
+            || CompareHelper.hasStringIndex<T>(value);
     }
 
-    static isFunction(value: AnyValue): value is ValueFunction {
+    static isFunction(value: unknown): value is ValueFunction {
         return CompareHelper.isEvaluable(value) &&
             (
                 typeof value === 'function'
@@ -98,13 +98,13 @@ export abstract class CompareHelper {
             );
     }
 
-    static isPrimitive(value: AnyValue): value is ValuePrimitive {
+    static isPrimitive(value: unknown): value is ValuePrimitive {
         return CompareHelper.isEvaluable(value)
             && !CompareHelper.isTree(value)
             && !CompareHelper.isFunction(value);
     }
 
-    static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean {
+    static isEqual(sideValue: unknown, otherSideValue: unknown): boolean {
         const typeStateSideValue = new TypeState(sideValue);
         let typeStateOtherSideValue = new TypeState(otherSideValue);
 
@@ -128,7 +128,7 @@ export abstract class CompareHelper {
     }
 
     static keys<
-        D extends AnyValue,
+        D,
         T extends GenericValueTree<D>,
         R extends ValueKey = T extends GenericValueArray<D> ? string : number
     >(tree: T): R[] {
@@ -137,9 +137,9 @@ export abstract class CompareHelper {
             : Object.getOwnPropertyNames(tree) as R[];
     }
 
-    static deepClone<T extends AnyValue>(source: T): T {
+    static deepClone<T>(source: T): T {
         if (CompareHelper.isArray(source)) {
-            return source.map((item): AnyValue => CompareHelper.deepClone(item)) as T;
+            return source.map((item): unknown => CompareHelper.deepClone(item)) as T;
         } else if (CompareHelper.hasStringIndex(source)) {
             return CompareHelper.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
                 const propDesc = Object.getOwnPropertyDescriptor(source, property);
@@ -158,8 +158,8 @@ export abstract class CompareHelper {
      * @param object
      * @param path
      */
-    static getIn(object: AnyValue, path: ValueKey[]): AnyValue {
-        let value: AnyValue | undefined = object
+    static getIn(object: unknown, path: ValueKey[]): unknown {
+        let value: unknown | undefined = object
         let i = 0
 
         if (value) {
@@ -194,7 +194,7 @@ export abstract class CompareHelper {
         return Object.hasOwn(tree, property)
     }
 
-    static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean {
+    static hasProperty(value: unknown, path: ValueKey[] | ValueKey): boolean {
         if (CompareHelper.isKey(path)) {
             path = [path]
         }
@@ -223,7 +223,7 @@ export abstract class CompareHelper {
             : false;
     }
 
-    static serialize(value: AnyValue): string {
+    static serialize(value: unknown): string {
         const flat = CompareHelper.flat(value);
         if (CompareHelper.isString(flat)) {
             return flat;
@@ -232,7 +232,7 @@ export abstract class CompareHelper {
         return JSON.stringify(flat);
     }
 
-    static stringify(value: AnyValue): string {
+    static stringify(value: unknown): string {
         if (CompareHelper.isEvaluable(value)) {
             if (typeof value.toString !== undefined
                 || CompareHelper.isSymbol(value)
@@ -244,7 +244,7 @@ export abstract class CompareHelper {
         return value === null ? "null" : "undefined";
     }
 
-    private static flat(value: AnyValue): AnyValue {
+    private static flat(value: unknown): unknown {
         const typeState = new TypeState(value);
 
         if (!typeState.isValuable || typeState.isPrimitive || typeState.isFunction) {
@@ -254,7 +254,7 @@ export abstract class CompareHelper {
 
             return CompareHelper.stringify(value);
         } else if (CompareHelper.isTree(value)) {
-            const flat: Record<string | number, AnyValue> = typeState.isArray ?
+            const flat: Record<string | number, unknown> = typeState.isArray ?
                 [] as Record<number, AnyValue> : {} as ValueRecord;
 
 
