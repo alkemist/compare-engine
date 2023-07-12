@@ -146,6 +146,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "null", value: null, expectedType: TypeStateEnum.NO_EVALUABLE, expectedSerialize: "null",
@@ -156,6 +157,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "true", value: true, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "true",
@@ -166,6 +168,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "false", value: false, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "false",
@@ -176,6 +179,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "object false", value: Boolean(false), expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "false",
@@ -186,6 +190,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "0", value: 0, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "0",
@@ -196,6 +201,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "1", value: 1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "1",
@@ -206,6 +212,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "2", value: 2, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "2",
@@ -216,6 +223,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "2.1", value: 2.1, expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "2.1",
@@ -226,6 +234,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "object 2.1", value: Number(2.1), expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: "2.1",
@@ -236,6 +245,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "", value: "", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: '""',
@@ -246,6 +256,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "string", value: "string", expectedType: TypeStateEnum.PRIMITIVE, expectedSerialize: '"string"',
@@ -256,6 +267,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "object string",
@@ -269,6 +281,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "[]", value: [], expectedType: TypeStateEnum.ARRAY, expectedSerialize: "[]",
@@ -279,6 +292,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "object []", value: new Array(0), expectedType: TypeStateEnum.ARRAY, expectedSerialize: "[]",
@@ -289,6 +303,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: '[{property: "value"}]',
@@ -302,6 +317,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: '{property: "value"}',
@@ -315,6 +331,7 @@ export const testValues = [
         isRecord: true,
         isObject: false,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "voidFunction",
@@ -328,6 +345,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: true,
+        isDate: false,
     },
     {
         name: "paramsFunction",
@@ -341,6 +359,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: true,
+        isDate: false,
     },
     {
         name: "classicFunction",
@@ -354,6 +373,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: true,
+        isDate: false,
     },
     {
         name: "asyncFunction",
@@ -367,6 +387,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: true,
+        isDate: false,
     },
     {
         name: "objectFunction",
@@ -380,6 +401,7 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: true,
+        isDate: false,
     },
     {
         name: "object parent",
@@ -393,6 +415,7 @@ export const testValues = [
         isRecord: false,
         isObject: true,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "object child",
@@ -406,6 +429,7 @@ export const testValues = [
         isRecord: false,
         isObject: true,
         isFunction: false,
+        isDate: false,
     },
     {
         name: "any array",
@@ -419,6 +443,21 @@ export const testValues = [
         isRecord: false,
         isObject: false,
         isFunction: false,
+        isDate: false,
+    },
+    {
+        name: "date",
+        value: new Date("2023-07-12T14:38:58.480Z"),
+        expectedType: TypeStateEnum.OBJECT,
+        expectedSerialize: JSON.stringify("2023-07-12T14:38:58.480Z"),
+        isEvaluable: true,
+        isNumber: false,
+        isArray: false,
+        isString: false,
+        isRecord: false,
+        isObject: true,
+        isFunction: false,
+        isDate: true,
     },
 ] as ValueTest[]
 
@@ -434,4 +473,5 @@ export interface ValueTest {
     isRecord: boolean,
     isObject: boolean,
     isFunction: boolean,
+    isDate: boolean,
 }

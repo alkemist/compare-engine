@@ -1,4 +1,4 @@
-import { AnyValue, Evaluable, GenericValueArray, GenericValueRecord, GenericValueTree, ValueFunction, ValueKey, ValuePrimitive, ValueTree } from "./value.type.js";
+import { AnyValue, Evaluable, GenericValueArray, GenericValueRecord, GenericValueTree, ValueDate, ValueFunction, ValueKey, ValuePrimitive, ValueTree } from "./value.type.js";
 export declare abstract class CompareHelper {
     static isEvaluable(value: unknown): value is Evaluable;
     static isBoolean(value: unknown): value is boolean;
@@ -12,6 +12,8 @@ export declare abstract class CompareHelper {
     static hasStringIndex<T = AnyValue>(value: unknown): value is GenericValueRecord<T>;
     static isTree<T = AnyValue>(value: unknown): value is GenericValueTree<T>;
     static isFunction(value: unknown): value is ValueFunction;
+    static isDate(value: unknown): value is ValueDate;
+    static isT<T>(value: T): T;
     static isPrimitive(value: unknown): value is ValuePrimitive;
     static isEqual(sideValue: unknown, otherSideValue: unknown): boolean;
     static keys<D, T extends GenericValueTree<D>, R extends ValueKey = T extends GenericValueArray<D> ? string : number>(tree: T): R[];

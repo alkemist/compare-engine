@@ -5,6 +5,7 @@ import {
     GenericValueRecord,
     GenericValueTree,
     ValueArray,
+    ValueDate,
     ValueFunction,
     ValueKey,
     ValuePrimitive,
@@ -98,6 +99,14 @@ export abstract class CompareHelper {
             );
     }
 
+    static isDate(value: unknown): value is ValueDate {
+        return CompareHelper.isObject(value) && Object.getPrototypeOf(value).constructor.name === "Date";
+    }
+
+    static isT<T>(value: T): T {
+        return value as T;
+    }
+
     static isPrimitive(value: unknown): value is ValuePrimitive {
         return CompareHelper.isEvaluable(value)
             && !CompareHelper.isTree(value)
@@ -140,6 +149,8 @@ export abstract class CompareHelper {
     static deepClone<T>(source: T): T {
         if (CompareHelper.isArray(source)) {
             return source.map((item): unknown => CompareHelper.deepClone(item)) as T;
+        } else if (CompareHelper.isDate(source)) {
+            return new Date(source) as T;
         } else if (CompareHelper.hasStringIndex(source)) {
             return CompareHelper.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
                 const propDesc = Object.getOwnPropertyDescriptor(source, property);
@@ -253,6 +264,8 @@ export abstract class CompareHelper {
             }
 
             return CompareHelper.stringify(value);
+        } else if (CompareHelper.isDate(value)) {
+            return value;
         } else if (CompareHelper.isTree(value)) {
             const flat: Record<string | number, unknown> = typeState.isArray ?
                 [] as Record<number, AnyValue> : {} as ValueRecord;

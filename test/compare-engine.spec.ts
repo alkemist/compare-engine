@@ -1,6 +1,5 @@
 import {describe, expect, it} from "@jest/globals";
-import {AnyValue, CompareEngine, ValuePrimitive} from "../src";
-import {CompareStateEnum} from "../src/compare-state.enum";
+import {AnyValue, CompareEngine, CompareStateEnum, ValuePrimitive} from "../src";
 
 class Parent<T extends boolean | string = string> {
     constructor(protected property = "value") {

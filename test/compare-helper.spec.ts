@@ -21,6 +21,7 @@ describe("CompareHelper", () => {
         {function: "isRecord"},
         {function: "isObject"},
         {function: "isFunction"},
+        {function: "isDate"},
     ] as { function: keyof CompareHelper & keyof ValueTest }[])(
         "$function",
         (test) => {
