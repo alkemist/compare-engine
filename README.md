@@ -152,17 +152,18 @@ Compares 2 value, considering array object movement :
     type ValueKey = string | number
     type ValuePrimitive = ValueKey | boolean | symbol
     type ValueFunction = Function;
+    type ValueDate = Date;
     type ValueArray = AnyValue[];
+    type GenericValueArray<T> = T[];
     type ValueRecord = {
         [key: ValueKey]: AnyValue;
     };
-    type GenericValueArray<T extends AnyValue> = T[];
-    type GenericValueRecord<T extends AnyValue> = {
+    type GenericValueRecord<T> = {
         [key: ValueKey]: T;
     };
-    type ValueTree = ValueArray | ValueObject | ValueRecord;
-    type GenericValueTree<T extends AnyValue> = GenericValueArray<T> | GenericValueRecord<T>;
-    type Evaluable = ValuePrimitive | ValueFunction | ValueTree | object;
+    type ValueTree = ValueArray | ValueRecord;
+    type GenericValueTree<T> = GenericValueArray<T> | GenericValueRecord<T>;
+    type Evaluable = ValuePrimitive | ValueFunction | ValueTree | ValueDate | object;
     type AnyValue = Evaluable | NotEvaluable;
 
     enum CompareStateEnum {
@@ -174,18 +175,18 @@ Compares 2 value, considering array object movement :
         EQUAL = "equal",
     }
 
-    class CompareEngine<T extends AnyValue = AnyValue> {
+    class CompareEngine<DATA_TYPE> {
         constructor(
-            protected determineArrayIndexFn?: (paths: string[]) => string
-            leftValue?: T = null,
-            rightValue?: T = null
+            protected determineArrayIndexFn?: (paths: ValueKey[]) => ValueKey
+            leftValue?: DATA_TYPE = null,
+            rightValue?: DATA_TYPE = null
         )
 
-        get leftValue(): T | undefined
-        get rightValue(): T | undefined
+        get leftValue(): DATA_TYPE | undefined
+        get rightValue(): DATA_TYPE | undefined
 
-        updateLeft(value: T | undefined): void
-        updateRight(value: T | undefined): void
+        updateLeft(value: DATA_TYPE | undefined): void
+        updateRight(value: DATA_TYPE | undefined): void
 
         leftToRight(): void
         rightToLeft(): void
