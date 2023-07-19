@@ -159,6 +159,7 @@ export abstract class CompareHelper {
             return new Date(source) as T;
         } else if (CompareHelper.hasStringIndex(source)) {
             const cycles = CompareHelper.getCycles(source);
+            const prototype = Object.getPrototypeOf(source);
 
             return (CompareHelper.keys(source) as string[])
                 .filter(key => cycles.indexOf(key) === -1)
@@ -170,7 +171,7 @@ export abstract class CompareHelper {
 
                     object[property] = CompareHelper.deepClone(source[property]);
                     return object;
-                }, Object.create(Object.getPrototypeOf(source)) as ValueRecord) as T;
+                }, (prototype ? Object.create(prototype) : {}) as ValueRecord) as T;
         }
         return source;
     }
