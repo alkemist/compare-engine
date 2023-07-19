@@ -1,6 +1,7 @@
 import { AnyValue, Evaluable, GenericValueArray, GenericValueRecord, GenericValueTree, ValueDate, ValueFunction, ValueKey, ValuePrimitive, ValueRecord, ValueTree } from "./value.type.js";
 export declare abstract class CompareHelper {
     static isEvaluable(value: unknown): value is Evaluable;
+    static getPrototypeOf(value: unknown): {};
     static isBoolean(value: unknown): value is boolean;
     static isKey(value: unknown): value is ValueKey;
     static isNumber(value: unknown): value is number;
