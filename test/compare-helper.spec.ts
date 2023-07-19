@@ -41,5 +41,31 @@ describe("CompareHelper", () => {
             );
         }
     );
+
+    describe("Get cycles", () => {
+        const x = {
+            cycle: null as any,
+        };
+        x.cycle = x;
+        const objWithCycles = {
+            prop: {},
+            test: "test",
+            prop2: [1, 2, [{subArray: x}]]
+        };
+
+        it("Should detect circular references", () => {
+            expect(CompareHelper.getCycles(objWithCycles)).toEqual([
+                "prop2[2][0].subArray.cycle"
+            ]);
+        })
+
+        it("Should deep clone without circular references", () => {
+            expect(CompareHelper.deepClone(objWithCycles)).toEqual({
+                prop: {},
+                test: "test",
+                prop2: [1, 2, [{subArray: {}}]]
+            });
+        });
+    })
 });
 

@@ -79,41 +79,41 @@ Compares 2 value, considering array object movement :
 
     compareEngine.getLeftState("") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/property") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/0/id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherObjectArray/1/id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray/0") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/0/otherArray/2") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/1/id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/2") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray/2/id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].property") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[0]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[0].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[1]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[1].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[0]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[1]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[2]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[1]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[1].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[2]") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[2].id") // return UPDATED CompareState
 
     compareEngine.getRightState("") // return UPDATED CompareState
     compareEngine.getRightState("objectArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/0") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/0/id") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/id") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/property") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherObjectArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherObjectArray/0") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherObjectArray/0/id") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherObjectArray/1") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherObjectArray/1/id") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherArray/0") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherArray/1") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/1/otherArray/2") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/2") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray/2/id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[0]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[0].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].property") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[0]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[0].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[1]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[1].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[0]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[1]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[2]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[2]") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[2].id") // return UPDATED CompareState
 
 ### With Objects
 

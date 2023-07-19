@@ -1,4 +1,4 @@
-import { AnyValue, Evaluable, GenericValueArray, GenericValueRecord, GenericValueTree, ValueDate, ValueFunction, ValueKey, ValuePrimitive, ValueTree } from "./value.type.js";
+import { AnyValue, Evaluable, GenericValueArray, GenericValueRecord, GenericValueTree, ValueDate, ValueFunction, ValueKey, ValuePrimitive, ValueRecord, ValueTree } from "./value.type.js";
 export declare abstract class CompareHelper {
     static isEvaluable(value: unknown): value is Evaluable;
     static isBoolean(value: unknown): value is boolean;
@@ -18,6 +18,7 @@ export declare abstract class CompareHelper {
     static isEqual(sideValue: unknown, otherSideValue: unknown): boolean;
     static keys<D, T extends GenericValueTree<D>, R extends ValueKey = T extends GenericValueArray<D> ? string : number>(tree: T): R[];
     static deepClone<T>(source: T): T;
+    static getCycles(object: ValueRecord): string[];
     static getIn(object: unknown, path: ValueKey[]): unknown;
     static parseInt(value: ValueKey): number;
     static hasOwn(tree: ValueTree, property: ValueKey): boolean;

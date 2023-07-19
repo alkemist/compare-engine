@@ -13,6 +13,7 @@ import {
     ValueTree
 } from "./value.type.js";
 import {TypeState} from "./type-state.js";
+import {Path} from "./path.js";
 
 const PrimitiveClassNames = ["Boolean", "Number", "String"]
 
@@ -141,6 +142,8 @@ export abstract class CompareHelper {
         T extends GenericValueTree<D>,
         R extends ValueKey = T extends GenericValueArray<D> ? string : number
     >(tree: T): R[] {
+        if (!CompareHelper.isEvaluable(tree)) return [];
+
         return CompareHelper.isArray(tree)
             ? Object.keys(tree).map(index => parseInt(index)) as R[]
             : Object.getOwnPropertyNames(tree) as R[];
@@ -148,21 +151,63 @@ export abstract class CompareHelper {
 
     static deepClone<T>(source: T): T {
         if (CompareHelper.isArray(source)) {
-            return source.map((item): unknown => CompareHelper.deepClone(item)) as T;
+            return source.map((item): unknown => CompareHelper.deepClone(
+                    item,
+                )
+            ) as T;
         } else if (CompareHelper.isDate(source)) {
             return new Date(source) as T;
         } else if (CompareHelper.hasStringIndex(source)) {
-            return CompareHelper.keys(source).reduce((object: ValueRecord, property: ValueKey) => {
-                const propDesc = Object.getOwnPropertyDescriptor(source, property);
-                if (propDesc !== undefined) {
-                    Object.defineProperty(object, property, propDesc);
-                }
-                object[property] = CompareHelper.deepClone(source[property]);
-                return object;
-            }, Object.create(Object.getPrototypeOf(source)) as ValueRecord) as T;
+            const cycles = CompareHelper.getCycles(source);
+
+            return (CompareHelper.keys(source) as string[])
+                .filter(key => cycles.indexOf(key) === -1)
+                .reduce((object: ValueRecord, property) => {
+                    const propDesc = Object.getOwnPropertyDescriptor(source, property);
+                    if (propDesc !== undefined) {
+                        Object.defineProperty(object, property, propDesc);
+                    }
+
+                    object[property] = CompareHelper.deepClone(source[property]);
+                    return object;
+                }, Object.create(Object.getPrototypeOf(source)) as ValueRecord) as T;
         }
         return source;
     }
+
+    static getCycles(object: ValueRecord) {
+        if (!CompareHelper.isEvaluable(object)) {
+            return [];
+        }
+
+        const traversedProps = new Set();
+        const cycles: Path[] = [];
+
+        // Recursive function to go over objects/arrays
+        const traverse = function (currentObj: GenericValueTree<unknown>, path = new Path()) {
+            if (traversedProps.has(currentObj)) {
+                cycles.push(path);
+                return;
+            }
+
+            traversedProps.add(currentObj);
+
+            CompareHelper.keys(currentObj).forEach((key) => {
+                const newPath = path.clone();
+                newPath.push(key);
+
+                const child = CompareHelper.isArray(currentObj) ?
+                    currentObj[CompareHelper.parseInt(key)] : (currentObj as ValueRecord)[key];
+
+                if (CompareHelper.isTree(child)) {
+                    traverse(child as GenericValueTree<unknown>, newPath);
+                }
+            })
+        }
+
+        traverse(object);
+        return cycles.map(cycle => cycle.toString());
+    };
 
     /**
      * Retrieves an element from a tree

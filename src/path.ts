@@ -1,4 +1,5 @@
 import {ValueKey} from "./value.type.js";
+import {CompareHelper} from "./compare.helper.js";
 
 export class Path extends Array<ValueKey> {
 
@@ -18,7 +19,13 @@ export class Path extends Array<ValueKey> {
     }
 
     override toString(): string {
-        return this.join('/');
+        return this.reduce((strPath, currentPath) => {
+            const newPath = CompareHelper.isNumber(currentPath)
+                ? `[${currentPath}]`
+                : `${strPath === "" ? "" : "."}${currentPath}`;
+
+            return strPath + newPath;
+        }, "") as string;
     }
 
     last(): ValueKey | undefined {
