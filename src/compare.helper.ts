@@ -22,11 +22,15 @@ export abstract class CompareHelper {
         return value !== null && value !== undefined;
     }
 
+    static getPrototypeOf(value: unknown): {} {
+        return Object.getPrototypeOf(value) ?? {}
+    }
+
     static isBoolean(value: unknown): value is boolean {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "boolean"
-                || Object.getPrototypeOf(value).constructor === Boolean
+                || CompareHelper.getPrototypeOf(value).constructor === Boolean
             );
     }
 
@@ -40,7 +44,7 @@ export abstract class CompareHelper {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "number"
-                || Object.getPrototypeOf(value).constructor === Number
+                || CompareHelper.getPrototypeOf(value).constructor === Number
             )
             && !isNaN(+CompareHelper.stringify(value));
     }
@@ -49,7 +53,7 @@ export abstract class CompareHelper {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "symbol"
-                || Object.getPrototypeOf(value).constructor === Symbol
+                || CompareHelper.getPrototypeOf(value).constructor === Symbol
             );
     }
 
@@ -57,7 +61,7 @@ export abstract class CompareHelper {
         return CompareHelper.isEvaluable(value)
             && (
                 typeof value === "string"
-                || Object.getPrototypeOf(value).constructor === String
+                || CompareHelper.getPrototypeOf(value).constructor === String
             );
     }
 
@@ -69,21 +73,21 @@ export abstract class CompareHelper {
     static isRecord<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
-            && Object.getPrototypeOf(value).constructor.name === "Object";
+            && CompareHelper.getPrototypeOf(value).constructor.name === "Object";
     }
 
     static isObject<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array", "Object"]
-                .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
+                .indexOf(CompareHelper.getPrototypeOf(value).constructor.name) === -1;
     }
 
     static hasStringIndex<T = AnyValue>(value: unknown): value is GenericValueRecord<T> {
         return CompareHelper.isEvaluable(value)
             && typeof value === "object"
             && [...PrimitiveClassNames, "Array"]
-                .indexOf(Object.getPrototypeOf(value).constructor.name) === -1;
+                .indexOf(CompareHelper.getPrototypeOf(value).constructor.name) === -1;
     }
 
     static isTree<T = AnyValue>(value: unknown): value is GenericValueTree<T> {
@@ -101,7 +105,7 @@ export abstract class CompareHelper {
     }
 
     static isDate(value: unknown): value is ValueDate {
-        return CompareHelper.isObject(value) && Object.getPrototypeOf(value).constructor.name === "Date";
+        return CompareHelper.isObject(value) && CompareHelper.getPrototypeOf(value).constructor.name === "Date";
     }
 
     static isT<T>(value: T): T {
@@ -127,8 +131,8 @@ export abstract class CompareHelper {
             const typeCompareState = Object.is(typeStateSideValue.type, typeStateOtherSideValue.type);
             if (typeCompareState && typeStateSideValue.isObject && typeStateOtherSideValue.isObject) {
                 return Object.is(
-                    Object.getPrototypeOf(sideValue).constructor.name,
-                    Object.getPrototypeOf(otherSideValue).constructor.name
+                    CompareHelper.getPrototypeOf(sideValue).constructor.name,
+                    CompareHelper.getPrototypeOf(otherSideValue).constructor.name
                 );
             }
             return typeCompareState;
@@ -159,7 +163,7 @@ export abstract class CompareHelper {
             return new Date(source) as T;
         } else if (CompareHelper.hasStringIndex(source)) {
             const cycles = CompareHelper.getCycles(source);
-            const prototype = Object.getPrototypeOf(source);
+            const prototype = CompareHelper.getPrototypeOf(source);
 
             return (CompareHelper.keys(source) as string[])
                 .filter(key => cycles.indexOf(key) === -1)
