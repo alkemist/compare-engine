@@ -10,7 +10,7 @@
   "scripts": {
     "dist": "rm -f dist/* && tsc --project tsconfig.dist.json",
     "def": "rm -f lib/* && tsc --project tsconfig.def.json",
-    "prepublishOnly": "npm run dist && npm run def && webpack",
+    "prepublishOnly": "yarn test && npm run dist && npm run def && webpack",
     "test": "jest"
   },
   "files": [
