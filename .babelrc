@@ -1,0 +1,9 @@
+{
+  "Preferences": [
+    "@babel/preset-env"
+  ],
+  "presets": [
+    "env",
+    "@babel/preset-env"
+  ]
+}
