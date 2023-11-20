@@ -80,40 +80,40 @@ Compares 2 value, considering array object movement :
     compareEngine.getLeftState("") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray[0]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].id") // return EQUAL CompareState
     compareEngine.getLeftState("objectArray[0].property") // return UPDATED CompareState
     compareEngine.getLeftState("objectArray[0].otherObjectArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherObjectArray[0]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherObjectArray[0].id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherObjectArray[1]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherObjectArray[1].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[0]") // return MOVED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[0].id") // return NONE CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[1]") // return MOVED CompareState
+    compareEngine.getLeftState("objectArray[0].otherObjectArray[1].id") // return NONE CompareState
     compareEngine.getLeftState("objectArray[0].otherArray") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherArray[0]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherArray[1]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[0].otherArray[2]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[1]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[1].id") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[2]") // return UPDATED CompareState
-    compareEngine.getLeftState("objectArray[2].id") // return UPDATED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[0]") // return REMOVED CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[1]") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray[0].otherArray[2]") // return MOVED CompareState
+    compareEngine.getLeftState("objectArray[1]") // return REMOVED CompareState
+    compareEngine.getLeftState("objectArray[1].id") // return NONE CompareState
+    compareEngine.getLeftState("objectArray[2]") // return EQUAL CompareState
+    compareEngine.getLeftState("objectArray[2].id") // return NONE CompareState
 
     compareEngine.getRightState("") // return UPDATED CompareState
     compareEngine.getRightState("objectArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[0]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[0].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[0]") // return ADDED CompareState
+    compareEngine.getRightState("objectArray[0].id") // return NONE CompareState
     compareEngine.getRightState("objectArray[1]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].id") // return EQUAL CompareState
     compareEngine.getRightState("objectArray[1].property") // return UPDATED CompareState
     compareEngine.getRightState("objectArray[1].otherObjectArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherObjectArray[0]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherObjectArray[0].id") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherObjectArray[1]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherObjectArray[1].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[0]") // return MOVED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[0].id") // return NONE CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[1]") // return MOVED CompareState
+    compareEngine.getRightState("objectArray[1].otherObjectArray[1].id") // return NONE CompareState
     compareEngine.getRightState("objectArray[1].otherArray") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherArray[0]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherArray[1]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[1].otherArray[2]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[2]") // return UPDATED CompareState
-    compareEngine.getRightState("objectArray[2].id") // return UPDATED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[0]") // return MOVED CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[1]") // return EQUAL CompareState
+    compareEngine.getRightState("objectArray[1].otherArray[2]") // return ADDED CompareState
+    compareEngine.getRightState("objectArray[2]") // return EQUAL CompareState
+    compareEngine.getRightState("objectArray[2].id") // return NONE CompareState
 
 ### With Objects
 
@@ -148,24 +148,6 @@ Compares 2 value, considering array object movement :
 
 ## Exposed models, enums and utils
 
-    type NotEvaluable = null | undefined;
-    type ValueKey = string | number
-    type ValuePrimitive = ValueKey | boolean | symbol
-    type ValueFunction = Function;
-    type ValueDate = Date;
-    type ValueArray = AnyValue[];
-    type GenericValueArray<T> = T[];
-    type ValueRecord = {
-        [key: ValueKey]: AnyValue;
-    };
-    type GenericValueRecord<T> = {
-        [key: ValueKey]: T;
-    };
-    type ValueTree = ValueArray | ValueRecord;
-    type GenericValueTree<T> = GenericValueArray<T> | GenericValueRecord<T>;
-    type Evaluable = ValuePrimitive | ValueFunction | ValueTree | ValueDate | object;
-    type AnyValue = Evaluable | NotEvaluable;
-
     enum CompareStateEnum {
         NONE = "",
         ADDED = "added",
@@ -185,8 +167,14 @@ Compares 2 value, considering array object movement :
         get leftValue(): DATA_TYPE | undefined
         get rightValue(): DATA_TYPE | undefined
 
+        getInLeft(paths: ValueKey[] | ValueKey): unknown
+        getInRight(paths: ValueKey[] | ValueKey): unknown
+
         updateLeft(value: DATA_TYPE | undefined): void
         updateRight(value: DATA_TYPE | undefined): void
+
+        updateInLeft(value: DATA_TYPE | undefined, paths: ValueKey[] | ValueKey): void
+        updateInRight(value: DATA_TYPE | undefined, paths: ValueKey[] | ValueKey): void
 
         leftToRight(): void
         rightToLeft(): void
@@ -211,44 +199,6 @@ Compares 2 value, considering array object movement :
         isChanged(): boolean
 
         toString(): string
-    }
-
-    abstract class CompareHelper {
-        static isEvaluable(value: AnyValue): value is Evaluable
-        static isBoolean(value: AnyValue): value is boolean
-        static isKey(value: AnyValue): value is ValueKey
-        static isNumber(value: AnyValue): value is number
-        static isSymbol(value: AnyValue): value is symbol
-        static isString(value: AnyValue): value is string
-        static isArray<T = AnyValue>(value: AnyValue): value is GenericValueArray<T>
-        static isRecord<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
-        static isObject<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
-        static hasStringIndex<T = AnyValue>(value: AnyValue): value is GenericValueRecord<T>
-        static isTree<T = AnyValue>(value: AnyValue): value is GenericValueTree<T>
-        static isFunction(value: AnyValue): value is ValueFunction
-        static isPrimitive(value: AnyValue): value is ValuePrimitive
-
-        static isEqual(sideValue: AnyValue, otherSideValue: AnyValue): boolean
-
-        static keys<
-            D extends AnyValue, 
-            T extends GenericValueTree<D>, 
-            R extends ValueKey = T extends GenericValueArray<D> ? string : number
-        >(tree: T): R[]
-
-        static deepClone<T extends AnyValue>(source: T): T
-
-        static getIn(object: AnyValue, path: string[]): AnyValue
-
-        static parseInt(value: ValueKey): number
-
-        static hasOwn(tree: ValueTree, property: ValueKey): boolean 
-    
-        static hasProperty(value: AnyValue, path: ValueKey[] | ValueKey): boolean 
-
-        static serialize(value: AnyValue): string
-
-        static stringify(value: AnyValue): string
     }
 
 ## License
