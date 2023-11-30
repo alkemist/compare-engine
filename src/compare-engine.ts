@@ -110,6 +110,24 @@ export class CompareEngine<DATA_TYPE> {
     return this.getState(PanelEnum.RIGHT, paths);
   }
 
+  findLeftItem(itemsPath: ValueKey[] | ValueKey, sideObject: AnyValue) {
+    const itemsPaths = TypeHelper.isArray(itemsPath) ? itemsPath : [ itemsPath ]
+    const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(itemsPaths) : "";
+
+    const otherSideItems = this.getInLeft(itemsPaths) as ValueRecord[];
+
+    return this.findCompareItem(sideObject, otherSideItems, searchKey);
+  }
+
+  findRightItem(itemsPath: ValueKey[] | ValueKey, sideObject: AnyValue) {
+    const itemsPaths = TypeHelper.isArray(itemsPath) ? itemsPath : [ itemsPath ]
+    const searchKey = this.determineArrayIndexFn ? this.determineArrayIndexFn(itemsPaths) : "";
+
+    const otherSideItems = this.getInRight(itemsPaths) as ValueRecord[];
+
+    return this.findCompareItem(sideObject, otherSideItems, searchKey);
+  }
+
   protected getState(panel: PanelEnum, paths: ValueKey[] | ValueKey): CompareState {
     const path = Path.from(TypeHelper.isArray(paths) ? paths : [ paths ]);
 
@@ -159,10 +177,17 @@ export class CompareEngine<DATA_TYPE> {
   }
 
   protected findCompareItem(
-    sideValue: AnyValue,
-    otherSideItems: ValueRecord[],
+    sideValue: AnyValue | undefined,
+    otherSideItems: ValueRecord[] | undefined,
     searchKey: ValueKey
   ): FindedItemInterface {
+    if (!sideValue || !otherSideItems) {
+      return {
+        index: -1,
+        value: undefined
+      };
+    }
+
     let itemIndex;
 
     if (searchKey && TreeHelper.hasProperty(sideValue, [ searchKey ]) &&
@@ -173,11 +198,11 @@ export class CompareEngine<DATA_TYPE> {
     } else {
       const flattenItems = otherSideItems.map(item => JSON.stringify(item));
       itemIndex = flattenItems.indexOf(JSON.stringify(sideValue));
-
     }
+
     return {
       index: itemIndex,
-      value: otherSideItems[itemIndex]
+      value: itemIndex > -1 ? otherSideItems[itemIndex] : undefined
     };
   }
 
