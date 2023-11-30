@@ -33,8 +33,8 @@ export class CompareEngine<DATA_TYPE> {
     };
 
     this.panels = {
-      left: leftValue,
-      right: rightValue
+      left: TypeHelper.deepClone(leftValue),
+      right: TypeHelper.deepClone(rightValue)
     };
   }
 
