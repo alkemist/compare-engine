@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@alkemist/smart-tools@^1.1.12":
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/@alkemist/smart-tools/-/smart-tools-1.1.12.tgz#99cbc532bd0d39ce7e51d9207e3ea6567a03cf09"
-  integrity sha512-TgmBK/FKrw/UYPAArNSge/rrOI6vXtvqaRy0GGHDJSbR1Sxyih7Mab9V3uhCfk2k+kRo00eEDdGqTYmzK6qfkQ==
+"@alkemist/smart-tools@^1.1.14":
+  version "1.1.14"
+  resolved "https://registry.yarnpkg.com/@alkemist/smart-tools/-/smart-tools-1.1.14.tgz#650de3301fe388639a8a8ce7fd93304be4fb83b1"
+  integrity sha512-jYQdrRMmb40I8yzgmmgHe4IFwi2d/lf9KeWRspWFg7WR+zvjLgwCozj1o7+VKpCEZ42M1bK8FEp+uQ02Ow18GA==
   dependencies:
     "@angular/core" "^16.2.7"
 
